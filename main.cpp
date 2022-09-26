@@ -10,6 +10,8 @@ using namespace std;
 
 #include "basewin.h"
 #include "resource.h"
+#include "covexhullwindow.h"
+#include "graphwindow.h"
 
 template <class T> void SafeRelease(T** ppT)
 {
@@ -78,8 +80,11 @@ struct MyEllipse
 D2D1::ColorF::Enum colors[] = { D2D1::ColorF::Yellow, D2D1::ColorF::Salmon, D2D1::ColorF::LimeGreen };
 
 
+
 class MainWindow : public BaseWindow<MainWindow>
 {
+    GraphWindow             gwin;
+
     enum Mode
     {
         DrawMode,
@@ -127,6 +132,11 @@ class MainWindow : public BaseWindow<MainWindow>
     void    OnMouseMove(int pixelX, int pixelY, DWORD flags);
     void    OnKeyDown(UINT vkey);
 
+    //C
+    void    CreateButtons();
+    void    CreateGraph();
+    //C
+
 public:
 
     MainWindow() : pFactory(NULL), pRenderTarget(NULL), pBrush(NULL),
@@ -134,7 +144,7 @@ public:
     {
     }
 
-    PCWSTR  ClassName() const { return L"Circle Window Class"; }
+    PCWSTR  ClassName() const { return L"Convex Window Class"; }
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
@@ -178,7 +188,7 @@ void MainWindow::OnPaint()
 
         pRenderTarget->BeginDraw();
 
-        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
+        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
 
         for (auto i = ellipses.begin(); i != ellipses.end(); ++i)
         {
@@ -395,12 +405,54 @@ void MainWindow::SetMode(Mode m)
     SetCursor(hCursor);
 }
 
+// Create buttons
+void MainWindow::CreateButtons()
+{
+    CreateWindow(L"Button", L"Minkowski Difference",
+        WS_VISIBLE | WS_CHILD,
+        10, 10, 300, 50,      // postion x, y, width, height
+        m_hwnd, (HMENU)ID_MD_BUTTON, NULL, NULL
+    );
 
+    CreateWindow(L"Button", L"Minkowski Sum",
+        WS_VISIBLE | WS_CHILD,
+        10, 110, 300, 50,      // postion x, y, width, height
+        m_hwnd, (HMENU)ID_MS_BUTTON, NULL, NULL
+    );
+
+    CreateWindow(L"Button", L"Quickhull",
+        WS_VISIBLE | WS_CHILD,
+        10, 210, 300, 50,      // postion x, y, width, height
+        m_hwnd, (HMENU)ID_Q_BUTTON, NULL, NULL
+    );
+
+    CreateWindow(L"Button", L"Point Convex Hull",
+        WS_VISIBLE | WS_CHILD,
+        10, 310, 300, 50,      // postion x, y, width, height
+        m_hwnd, (HMENU)ID_PCH_BUTTON, NULL, NULL
+    );
+
+    CreateWindow(L"Button", L"GJK",
+        WS_VISIBLE | WS_CHILD,
+        10, 410, 300, 50,      // postion x, y, width, height
+        m_hwnd, (HMENU)ID_GJK_BUTTON, NULL, NULL
+    );
+
+    return;
+};
+
+// Create GraphScreen
+//void MainWindow::CreateGraph()
+//{
+//
+//};
+
+// Create the main window
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
 {
     MainWindow win;
 
-    if (!win.Create(L"Draw Circles", WS_OVERLAPPEDWINDOW))
+    if (!win.Create(L"Convex Hull Algorithms", WS_OVERLAPPEDWINDOW))
     {
         return 0;
     }
@@ -419,10 +471,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
         }
     }
     return 0;
-}
+};
 
+
+// Handle Message Function
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    GraphWindow gwin;
     switch (uMsg)
     {
     case WM_CREATE:
@@ -432,6 +487,14 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return -1;  // Fail CreateWindowEx.
         }
         DPIScale::Initialize(pFactory);
+
+        CreateButtons();
+
+        //if (!gwin.Create(L"Graph Window", WS_CHILDWINDOW | WS_VISIBLE, NULL, 500, 10, 2000, 5000, m_hwnd))
+        //{
+        //    return 0;
+        //}
+
         SetMode(DrawMode);
         return 0;
 
@@ -494,8 +557,20 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 SetMode(DrawMode);
             }
             break;
+
+        case ID_MD_BUTTON:
+            MessageBox(m_hwnd, L"click", L"title", MB_ICONINFORMATION);
+            break;
+
+        case ID_MS_BUTTON:
+            MessageBox(m_hwnd, L"1111click", L"111title", MB_ICONINFORMATION);
+            break;
+
         }
         return 0;
     }
     return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
-}
+};
+
+
+//

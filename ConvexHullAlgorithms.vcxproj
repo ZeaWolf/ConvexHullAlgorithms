@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="graphwindow.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +153,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basewin.h" />
+    <ClInclude Include="covexhullwindow.h" />
+    <ClInclude Include="graphwindow.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
