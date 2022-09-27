@@ -12,11 +12,16 @@ using namespace std;
 #include "resource.h"
 #include "covexhullwindow.h"
 
+//class GraphWindow {
+//private:
+//	HWND gwin = NULL;
+//	void OnPaint();
+//public:
+//	static LRESULT CALLBACK GraphWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+//	GraphWindow(HWND hwnd);
+//	HWND getGwin();
+//};
 
-class GraphWindow : public BaseWindow<GraphWindow>
-{
-    void    OnPaint();
-public:
-    PCWSTR  ClassName() const { return L"Graph Window Class"; }
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
+//HWND CreateGraph(HWND hwnd);
+//LRESULT CALLBACK GraphWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//void OnPaint(HWND hWnd);

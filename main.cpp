@@ -83,8 +83,7 @@ D2D1::ColorF::Enum colors[] = { D2D1::ColorF::Yellow, D2D1::ColorF::Salmon, D2D1
 
 class MainWindow : public BaseWindow<MainWindow>
 {
-    GraphWindow             gwin;
-
+    //GraphWindow             gwin;
     enum Mode
     {
         DrawMode,
@@ -134,7 +133,6 @@ class MainWindow : public BaseWindow<MainWindow>
 
     //C
     void    CreateButtons();
-    void    CreateGraph();
     //C
 
 public:
@@ -408,34 +406,76 @@ void MainWindow::SetMode(Mode m)
 // Create buttons
 void MainWindow::CreateButtons()
 {
-    CreateWindow(L"Button", L"Minkowski Difference",
-        WS_VISIBLE | WS_CHILD,
-        10, 10, 300, 50,      // postion x, y, width, height
-        m_hwnd, (HMENU)ID_MD_BUTTON, NULL, NULL
+    CreateWindowEx(
+        0,										// Optional window styles.
+        L"Button",					            // Window class
+        L"Minkowski Difference",	            // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        10, 30, 300, 50,                        // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_MD_BUTTON,					// Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
     );
 
-    CreateWindow(L"Button", L"Minkowski Sum",
-        WS_VISIBLE | WS_CHILD,
-        10, 110, 300, 50,      // postion x, y, width, height
-        m_hwnd, (HMENU)ID_MS_BUTTON, NULL, NULL
+    CreateWindowEx(
+        0,										// Optional window styles.
+        L"Button",					            // Window class
+        L"Minkowski Sum",	                    // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        10, 130, 300, 50,                       // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_MS_BUTTON,					// Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
     );
 
-    CreateWindow(L"Button", L"Quickhull",
-        WS_VISIBLE | WS_CHILD,
-        10, 210, 300, 50,      // postion x, y, width, height
-        m_hwnd, (HMENU)ID_Q_BUTTON, NULL, NULL
+    CreateWindowEx(
+        0,										// Optional window styles.
+        L"Button",					            // Window class
+        L"Quickhull",	                        // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        10, 230, 300, 50,                       // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_Q_BUTTON,					    // Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
     );
 
-    CreateWindow(L"Button", L"Point Convex Hull",
-        WS_VISIBLE | WS_CHILD,
-        10, 310, 300, 50,      // postion x, y, width, height
-        m_hwnd, (HMENU)ID_PCH_BUTTON, NULL, NULL
+    CreateWindowEx(
+        0,										// Optional window styles.
+        L"Button",					            // Window class
+        L"Point Convex Hull",	                // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        10, 330, 300, 50,                       // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_PCH_BUTTON,					// Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
     );
 
-    CreateWindow(L"Button", L"GJK",
-        WS_VISIBLE | WS_CHILD,
-        10, 410, 300, 50,      // postion x, y, width, height
-        m_hwnd, (HMENU)ID_GJK_BUTTON, NULL, NULL
+    CreateWindowEx(
+        0,										// Optional window styles.
+        L"Button",					            // Window class
+        L"GJK",	                                // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        10, 430, 300, 50,                       // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_PCH_BUTTON,					// Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
+    );
+
+    CreateWindowEx(
+        SS_BLACKFRAME,							// Optional window styles.
+        L"Static",					    // Window class
+        L"Graph",	                            // Window text
+        WS_CHILD | WS_VISIBLE,					// Window style
+        400, 20, 1000, 600,                     // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_GRAPH,					    // Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
     );
 
     return;
@@ -457,6 +497,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
         return 0;
     }
 
+    // Register Child Window Class
+
+    /*WNDCLASS gwc = {};
+    gwc.hInstance = hInstance;
+    gwc.lpszClassName = L"GWindow";
+    gwc.lpszMenuName = NULL;
+    gwc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    gwc.cbClsExtra = 0;
+    gwc.cbWndExtra = 0;
+    gwc.hIcon = NULL;
+    gwc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    gwc.style = CS_HREDRAW | CS_VREDRAW;
+    gwc.lpfnWndProc = GraphWndProc;
+    if (RegisterClass(&gwc) == 0) {
+        MessageBox(NULL, L"Error", L"ewew", MB_OK|MB_ICONERROR);
+    };*/
+    // Register Child Window Class
+
     HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL1));
 
     ShowWindow(win.Window(), nCmdShow);
@@ -477,38 +535,33 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
 // Handle Message Function
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    GraphWindow gwin;
+    static HWND gwd;
     switch (uMsg)
     {
     case WM_CREATE:
-        if (FAILED(D2D1CreateFactory(
-            D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
-        {
-            return -1;  // Fail CreateWindowEx.
-        }
-        DPIScale::Initialize(pFactory);
+        //if (FAILED(D2D1CreateFactory(
+        //    D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
+        //{
+        //    return -1;  // Fail CreateWindowEx.
+        //}
+        //DPIScale::Initialize(pFactory);
 
         CreateButtons();
-
-        //if (!gwin.Create(L"Graph Window", WS_CHILDWINDOW | WS_VISIBLE, NULL, 500, 10, 2000, 5000, m_hwnd))
-        //{
-        //    return 0;
-        //}
 
         SetMode(DrawMode);
         return 0;
 
     case WM_DESTROY:
-        DiscardGraphicsResources();
-        SafeRelease(&pFactory);
+        //DiscardGraphicsResources();
+        //SafeRelease(&pFactory);
         PostQuitMessage(0);
         return 0;
 
-    case WM_PAINT:
+ /*   case WM_PAINT:
         OnPaint();
-        return 0;
+        return 0;*/
 
-    case WM_SIZE:
+    /*case WM_SIZE:
         Resize();
         return 0;
 
@@ -534,7 +587,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
         OnKeyDown((UINT)wParam);
-        return 0;
+        return 0;*/
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -559,18 +612,59 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
 
         case ID_MD_BUTTON:
-            MessageBox(m_hwnd, L"click", L"title", MB_ICONINFORMATION);
+            MessageBox(m_hwnd, L"Click MD", L"Title", MB_ICONINFORMATION);
             break;
 
         case ID_MS_BUTTON:
-            MessageBox(m_hwnd, L"1111click", L"111title", MB_ICONINFORMATION);
+            MessageBox(m_hwnd, L"Click MS", L"Title", MB_ICONINFORMATION);
             break;
 
+        case ID_Q_BUTTON:
+            MessageBox(m_hwnd, L"Click Q", L"Title", MB_ICONINFORMATION);
+            break;
+
+        case ID_PCH_BUTTON:
+            MessageBox(m_hwnd, L"Click PCH", L"Title", MB_ICONINFORMATION);
+            break;
+
+        case ID_GJK_BUTTON:
+            MessageBox(m_hwnd, L"Click GJK", L"Title", MB_ICONINFORMATION);
+            break;
         }
+
         return 0;
     }
     return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 };
 
 
+////
+//LRESULT CALLBACK GraphWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//{
+//    switch (uMsg)
+//    {
+//    case WM_CREATE:
+//        return 0;
+//    case WM_CLOSE:
+//    {
+//        if (MessageBox(hwnd, L"Really quit?", L"My application", MB_OKCANCEL) == IDOK)
+//        {
+//            DestroyWindow(hwnd);
+//        }
+//        return 0;
+//    }
+//    case WM_DESTROY:
+//        PostQuitMessage(0);
+//        return 0;
 //
+//    case WM_PAINT:
+//        PAINTSTRUCT ps;
+//        BeginPaint(hwnd, &ps);
+//        HDC hdc = BeginPaint(hwnd, &ps);
+//        // All painting occurs here, between BeginPaint and EndPaint.
+//        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW +2));
+//        EndPaint(hwnd, &ps);
+//        return 0;
+//    };
+//    return 0;
+//};

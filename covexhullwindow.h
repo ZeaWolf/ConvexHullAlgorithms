@@ -3,7 +3,7 @@
 #define ID_Q_BUTTON			382
 #define ID_PCH_BUTTON		383
 #define ID_GJK_BUTTON		384
-
+#define ID_GRAPH			385
 
 
 //#ifndef _GRAPHWIN_H
