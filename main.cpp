@@ -1,155 +1,13 @@
-#include <windows.h>
-#include <Windowsx.h>
-#include <d2d1.h>
-
-#include <list>
-#include <memory>
-using namespace std;
-
-#pragma comment(lib, "d2d1")
-
-#include "basewin.h"
-#include "resource.h"
 #include "covexhullwindow.h"
-#include "graphwindow.h"
-
-template <class T> void SafeRelease(T** ppT)
-{
-    if (*ppT)
-    {
-        (*ppT)->Release();
-        *ppT = NULL;
-    }
-}
-
-class DPIScale
-{
-    static float scaleX;
-    static float scaleY;
-
-public:
-    static void Initialize(ID2D1Factory* pFactory)
-    {
-        FLOAT dpiX, dpiY;
-        #pragma warning(suppress : 4996)
-        pFactory->GetDesktopDpi(&dpiX, &dpiY);
-        scaleX = dpiX / 96.0f;
-        scaleY = dpiY / 96.0f;
-    }
-
-    template <typename T>
-    static float PixelsToDipsX(T x)
-    {
-        return static_cast<float>(x) / scaleX;
-    }
-
-    template <typename T>
-    static float PixelsToDipsY(T y)
-    {
-        return static_cast<float>(y) / scaleY;
-    }
-};
 
 float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
-
-struct MyEllipse
-{
-    D2D1_ELLIPSE    ellipse;
-    D2D1_COLOR_F    color;
-
-    void Draw(ID2D1RenderTarget* pRT, ID2D1SolidColorBrush* pBrush)
-    {
-        pBrush->SetColor(color);
-        pRT->FillEllipse(ellipse, pBrush);
-        pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-        pRT->DrawEllipse(ellipse, pBrush, 1.0f);
-    }
-
-    BOOL HitTest(float x, float y)
-    {
-        const float a = ellipse.radiusX;
-        const float b = ellipse.radiusY;
-        const float x1 = x - ellipse.point.x;
-        const float y1 = y - ellipse.point.y;
-        const float d = ((x1 * x1) / (a * a)) + ((y1 * y1) / (b * b));
-        return d <= 1.0f;
-    }
-};
-
 D2D1::ColorF::Enum colors[] = { D2D1::ColorF::Yellow, D2D1::ColorF::Salmon, D2D1::ColorF::LimeGreen };
 
-
-
-class MainWindow : public BaseWindow<MainWindow>
-{
-    //GraphWindow             gwin;
-    enum Mode
-    {
-        DrawMode,
-        SelectMode,
-        DragMode
-    };
-
-    HCURSOR                 hCursor;
-
-    ID2D1Factory* pFactory;
-    ID2D1HwndRenderTarget* pRenderTarget;
-    ID2D1SolidColorBrush* pBrush;
-    D2D1_POINT_2F           ptMouse;
-
-    Mode                    mode;
-    size_t                  nextColor;
-
-    list<shared_ptr<MyEllipse>>             ellipses;
-    list<shared_ptr<MyEllipse>>::iterator   selection;
-
-    shared_ptr<MyEllipse> Selection()
-    {
-        if (selection == ellipses.end())
-        {
-            return nullptr;
-        }
-        else
-        {
-            return (*selection);
-        }
-    }
-
-    void    ClearSelection() { selection = ellipses.end(); }
-    HRESULT InsertEllipse(float x, float y);
-
-    BOOL    HitTest(float x, float y);
-    void    SetMode(Mode m);
-    void    MoveSelection(float x, float y);
-    HRESULT CreateGraphicsResources();
-    void    DiscardGraphicsResources();
-    void    OnPaint();
-    void    Resize();
-    void    OnLButtonDown(int pixelX, int pixelY, DWORD flags);
-    void    OnLButtonUp();
-    void    OnMouseMove(int pixelX, int pixelY, DWORD flags);
-    void    OnKeyDown(UINT vkey);
-
-    //C
-    void    CreateButtons();
-    //C
-
-public:
-
-    MainWindow() : pFactory(NULL), pRenderTarget(NULL), pBrush(NULL),
-        ptMouse(D2D1::Point2F()), nextColor(0), selection(ellipses.end())
-    {
-    }
-
-    PCWSTR  ClassName() const { return L"Convex Window Class"; }
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
-
-HRESULT MainWindow::CreateGraphicsResources()
+HRESULT MainWindow::CreateGraphicsResourcesM()
 {
     HRESULT hr = S_OK;
-    if (pRenderTarget == NULL)
+    if (pRenderTargetM == NULL)
     {
         RECT rc;
         GetClientRect(m_hwnd, &rc);
@@ -159,65 +17,67 @@ HRESULT MainWindow::CreateGraphicsResources()
         hr = pFactory->CreateHwndRenderTarget(
             D2D1::RenderTargetProperties(),
             D2D1::HwndRenderTargetProperties(m_hwnd, size),
-            &pRenderTarget);
+            &pRenderTargetM);
 
         if (SUCCEEDED(hr))
         {
             const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0);
-            hr = pRenderTarget->CreateSolidColorBrush(color, &pBrush);
+            hr = pRenderTargetM->CreateSolidColorBrush(color, &pBrushM);
         }
     }
     return hr;
 }
 
-void MainWindow::DiscardGraphicsResources()
+void MainWindow::DiscardGraphicsResourcesM()
 {
-    SafeRelease(&pRenderTarget);
-    SafeRelease(&pBrush);
+    SafeRelease(&pRenderTargetM);
+    SafeRelease(&pBrushM);
+
 }
 
-void MainWindow::OnPaint()
+void MainWindow::OnPaintM()
 {
-    HRESULT hr = CreateGraphicsResources();
+    HRESULT hr = CreateGraphicsResourcesM();
     if (SUCCEEDED(hr))
     {
         PAINTSTRUCT ps;
         BeginPaint(m_hwnd, &ps);
 
-        pRenderTarget->BeginDraw();
+        pRenderTargetM->BeginDraw();
 
-        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+        pRenderTargetM->Clear(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
 
         for (auto i = ellipses.begin(); i != ellipses.end(); ++i)
         {
-            (*i)->Draw(pRenderTarget, pBrush);
+            (*i)->Draw(pRenderTargetM, pBrushM);
         }
 
         if (Selection())
         {
-            pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-            pRenderTarget->DrawEllipse(Selection()->ellipse, pBrush, 2.0f);
+            pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
+            pRenderTargetM->DrawEllipse(Selection()->ellipse, pBrushM, 2.0f);
         }
 
-        hr = pRenderTarget->EndDraw();
+        hr = pRenderTargetM->EndDraw();
         if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
         {
-            DiscardGraphicsResources();
+            DiscardGraphicsResourcesM();
         }
         EndPaint(m_hwnd, &ps);
     }
+    return;
 }
 
-void MainWindow::Resize()
+void MainWindow::ResizeM()
 {
-    if (pRenderTarget != NULL)
+    if (pRenderTargetM != NULL)
     {
         RECT rc;
         GetClientRect(m_hwnd, &rc);
 
         D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
-        pRenderTarget->Resize(size);
+        pRenderTargetM->Resize(size);
 
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
@@ -248,9 +108,9 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
         {
             SetCapture(m_hwnd);
 
-            ptMouse = Selection()->ellipse.point;
-            ptMouse.x -= dipX;
-            ptMouse.y -= dipY;
+            ptMouseM = Selection()->ellipse.point;
+            ptMouseM.x -= dipX;
+            ptMouseM.y -= dipY;
 
             SetMode(DragMode);
         }
@@ -283,18 +143,18 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         if (mode == DrawMode)
         {
             // Resize the ellipse.
-            const float width = (dipX - ptMouse.x) / 2;
-            const float height = (dipY - ptMouse.y) / 2;
-            const float x1 = ptMouse.x + width;
-            const float y1 = ptMouse.y + height;
+            const float width = (dipX - ptMouseM.x) / 2;
+            const float height = (dipY - ptMouseM.y) / 2;
+            const float x1 = ptMouseM.x + width;
+            const float y1 = ptMouseM.y + height;
 
             Selection()->ellipse = D2D1::Ellipse(D2D1::Point2F(x1, y1), width, height);
         }
         else if (mode == DragMode)
         {
             // Move the ellipse.
-            Selection()->ellipse.point.x = dipX + ptMouse.x;
-            Selection()->ellipse.point.y = dipY + ptMouse.y;
+            Selection()->ellipse.point.x = dipX + ptMouseM.x;
+            Selection()->ellipse.point.y = dipY + ptMouseM.y;
         }
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
@@ -342,7 +202,7 @@ HRESULT MainWindow::InsertEllipse(float x, float y)
             ellipses.end(),
             shared_ptr<MyEllipse>(new MyEllipse()));
 
-        Selection()->ellipse.point = ptMouse = D2D1::Point2F(x, y);
+        Selection()->ellipse.point = ptMouseM = D2D1::Point2F(x, y);
         Selection()->ellipse.radiusX = Selection()->ellipse.radiusY = 2.0f;
         Selection()->color = D2D1::ColorF(colors[nextColor]);
 
@@ -403,89 +263,6 @@ void MainWindow::SetMode(Mode m)
     SetCursor(hCursor);
 }
 
-// Create buttons
-void MainWindow::CreateButtons()
-{
-    CreateWindowEx(
-        0,										// Optional window styles.
-        L"Button",					            // Window class
-        L"Minkowski Difference",	            // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 30, 300, 50,                        // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_MD_BUTTON,					// Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    CreateWindowEx(
-        0,										// Optional window styles.
-        L"Button",					            // Window class
-        L"Minkowski Sum",	                    // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 130, 300, 50,                       // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_MS_BUTTON,					// Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    CreateWindowEx(
-        0,										// Optional window styles.
-        L"Button",					            // Window class
-        L"Quickhull",	                        // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 230, 300, 50,                       // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_Q_BUTTON,					    // Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    CreateWindowEx(
-        0,										// Optional window styles.
-        L"Button",					            // Window class
-        L"Point Convex Hull",	                // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 330, 300, 50,                       // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_PCH_BUTTON,					// Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    CreateWindowEx(
-        0,										// Optional window styles.
-        L"Button",					            // Window class
-        L"GJK",	                                // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 430, 300, 50,                       // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_PCH_BUTTON,					// Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    CreateWindowEx(
-        SS_BLACKFRAME,							// Optional window styles.
-        L"Static",					    // Window class
-        L"Graph",	                            // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        400, 20, 1000, 600,                     // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_GRAPH,					    // Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
-
-    return;
-};
-
-// Create GraphScreen
-//void MainWindow::CreateGraph()
-//{
-//
-//};
 
 // Create the main window
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
@@ -496,24 +273,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
     {
         return 0;
     }
-
-    // Register Child Window Class
-
-    /*WNDCLASS gwc = {};
-    gwc.hInstance = hInstance;
-    gwc.lpszClassName = L"GWindow";
-    gwc.lpszMenuName = NULL;
-    gwc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    gwc.cbClsExtra = 0;
-    gwc.cbWndExtra = 0;
-    gwc.hIcon = NULL;
-    gwc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    gwc.style = CS_HREDRAW | CS_VREDRAW;
-    gwc.lpfnWndProc = GraphWndProc;
-    if (RegisterClass(&gwc) == 0) {
-        MessageBox(NULL, L"Error", L"ewew", MB_OK|MB_ICONERROR);
-    };*/
-    // Register Child Window Class
 
     HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL1));
 
@@ -535,34 +294,45 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
 // Handle Message Function
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND gwd;
+    
     switch (uMsg)
     {
     case WM_CREATE:
+        if (FAILED(D2D1CreateFactory(
+            D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
+        {
+            return -1;  // Fail CreateWindowEx.
+        }
+        DPIScale::Initialize(pFactory);
+
         //if (FAILED(D2D1CreateFactory(
-        //    D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
+        //    D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactoryG)))
         //{
         //    return -1;  // Fail CreateWindowEx.
         //}
-        //DPIScale::Initialize(pFactory);
+        //DPIScale::Initialize(pFactoryG);
 
-        CreateButtons();
+        CreateLayout();
 
         SetMode(DrawMode);
         return 0;
 
     case WM_DESTROY:
-        //DiscardGraphicsResources();
-        //SafeRelease(&pFactory);
+        DiscardGraphicsResourcesM();
+        DiscardGraphicsResourcesG();
+        SafeRelease(&pFactory);
+        //SafeRelease(&pFactoryG);
         PostQuitMessage(0);
         return 0;
 
- /*   case WM_PAINT:
-        OnPaint();
-        return 0;*/
+    case WM_PAINT:
+        OnPaintM();
+        OnPaintG();
+        return 0;
 
-    /*case WM_SIZE:
-        Resize();
+    case WM_SIZE:
+        ResizeM();
+        ResizeG();
         return 0;
 
     case WM_LBUTTONDOWN:
@@ -587,7 +357,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
         OnKeyDown((UINT)wParam);
-        return 0;*/
+        return 0;
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
