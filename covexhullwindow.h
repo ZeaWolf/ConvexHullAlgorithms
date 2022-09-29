@@ -5,15 +5,17 @@
 #define ID_GJK_BUTTON		384
 #define ID_GRAPH			385
 
-#define GRID_NUM            30
-#define LOWRAND             -15
-#define UPPRAND             15
+#define GRID_NUM            60
+#define LOWRAND             -13
+#define UPPRAND             13
 
 #define MDSIZE              6
 #define MSSIZE              6
 #define QSIZE               15
 #define PCSIZE              15
 #define GJKSIZE             6
+
+#define BOUNDARY            275.0F
 
 #include <windows.h>
 #include <Windowsx.h>
@@ -31,6 +33,8 @@ using namespace std;
 //random number generator
 #include<cstdlib>
 #include<ctime>
+#include<vector>
+#include <math.h>
 
 
 template <class T> void SafeRelease(T** ppT)
@@ -111,6 +115,7 @@ struct MyEllipse
     }
 };
 
+
 //D2D1::ColorF::Enum colors[] = { D2D1::ColorF::Yellow, D2D1::ColorF::Salmon, D2D1::ColorF::LimeGreen };
 
 
@@ -142,26 +147,30 @@ class MainWindow : public BaseWindow<MainWindow>
     Mode                    mode;
     size_t                  nextColor;
 
-    HWND                    gwnd = NULL;
+    //HWND                    gwnd = NULL;
     HWND                    hb1 = NULL;
     HWND                    hb2 = NULL;
     HWND                    hb3 = NULL;
     HWND                    hb4 = NULL;
     HWND                    hb5 = NULL;
 
-    D2D1_POINT_2F           MD1[MDSIZE];
-    D2D1_POINT_2F           MD2[MDSIZE];
+    std::vector<D2D1_POINT_2F>           MDraw1;
+    std::vector<D2D1_POINT_2F>           MDraw2;
+    std::vector<D2D1_POINT_2F>           MDresult;
 
-    D2D1_POINT_2F           MS1[MSSIZE];
-    D2D1_POINT_2F           MS2[MSSIZE];
+    std::vector<D2D1_POINT_2F>           MSraw1;
+    std::vector<D2D1_POINT_2F>           MSraw2;
+    std::vector<D2D1_POINT_2F>           MSresult;
 
-    D2D1_POINT_2F           Q[QSIZE];
+    std::vector<D2D1_POINT_2F>           Qraw;
+    std::vector<D2D1_POINT_2F>           Qresult;
 
-    D2D1_POINT_2F           PC1[1];
-    D2D1_POINT_2F           PC2[PCSIZE];
+    std::vector<D2D1_POINT_2F>           PCtarget;
+    std::vector<D2D1_POINT_2F>           PCraw;
 
-    D2D1_POINT_2F           GJK1[GJKSIZE];
-    D2D1_POINT_2F           GJK2[GJKSIZE];
+    std::vector<D2D1_POINT_2F>           GJKraw1;
+    std::vector<D2D1_POINT_2F>           GJKraw2;
+    std::vector<D2D1_POINT_2F>           GJKresult;
     
 
     list<shared_ptr<MyEllipse>>             ellipses1;
@@ -187,7 +196,7 @@ class MainWindow : public BaseWindow<MainWindow>
     BOOL    HitTest1(float x, float y);
     BOOL    HitTest2(float x, float y);
 
-    HRESULT InsertPoints(D2D1_POINT_2F arr1[], D2D1_POINT_2F arr2[], int size1, int size2);
+    HRESULT InsertPoints(std::vector<D2D1_POINT_2F>* vec1, std::vector<D2D1_POINT_2F>* vec2);
 
 
     void    SetMode(Mode m);
@@ -195,13 +204,14 @@ class MainWindow : public BaseWindow<MainWindow>
 
     //
     HRESULT CreateGraphicsResourcesM();
-    HRESULT CreateGraphicsResourcesG();
+    //HRESULT CreateGraphicsResourcesG();
     void    DiscardGraphicsResourcesM();
-    void    DiscardGraphicsResourcesG();
+    //void    DiscardGraphicsResourcesG();
     void    OnPaintM();
-    void    OnPaintG();
+    //void    OnPaintG();
+    //void    OnPaintB();
     void    ResizeM();
-    void    ResizeG();
+    //void    ResizeG();
 
     //
     void    OnLButtonDown(int pixelX, int pixelY, DWORD flags);
@@ -217,7 +227,9 @@ class MainWindow : public BaseWindow<MainWindow>
     //void    OnKeyDown(UINT vkey);
 
     //C
+    void    DrawPoint(int code);
     void    DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB);
+    void    DrawPolygon(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB, std::vector<D2D1_POINT_2F>* vec, D2D1_COLOR_F color);
     void    CreateLayout();
     void    GetGraphInfo(float p[]);
     float   ConvertXToDip(float x);
@@ -225,6 +237,11 @@ class MainWindow : public BaseWindow<MainWindow>
     float   ConvertDipToX(float x);
     float   ConvertDipToY(float y);
     //C
+
+    void    UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, float newx, float newy);
+
+    void    ShowQuickhull();
+
 
 
 public:
@@ -244,7 +261,8 @@ static float randx[] = { 1, 2, 0, 5, 6, -5 };
 static float randy[] = { 2, 5, 8, -2, 0, -5 };
 
 int RNG(int a, int b);
-void GenerateInitialPoints(D2D1_POINT_2F arr[], int size);
+void GenerateInitialPoints(std::vector<D2D1_POINT_2F>* vec, int size);
+void SortPoints(std::vector<D2D1_POINT_2F>* vec);
 
 
 

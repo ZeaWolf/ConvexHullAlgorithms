@@ -35,7 +35,7 @@ public:
 
     BOOL Create(
         PCWSTR lpWindowName,
-        DWORD dwStyle = WS_CLIPCHILDREN,
+        DWORD dwStyle,
         DWORD dwExStyle = 0,
         int x = CW_USEDEFAULT,
         int y = CW_USEDEFAULT,

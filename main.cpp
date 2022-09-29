@@ -4,14 +4,13 @@ float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
 D2D1::ColorF::Enum colors[] = { D2D1::ColorF::Yellow, D2D1::ColorF::Salmon, D2D1::ColorF::LimeGreen };
 
-void MainWindow::GetGraphInfo(float p[]) {
-    RECT rc1, rc2;
+void MainWindow::GetGraphInfo(float p[]/*, float offsetx, float scale*/) {
+    RECT rc1;
     GetClientRect(m_hwnd, &rc1);
-    GetClientRect(gwnd, &rc2);
 
-    p[0] = rc2.right + ((float)(rc1.right - rc2.right) / 2);  // Origin x
+    p[0] = (BOUNDARY + ((float)(rc1.right - BOUNDARY) / 2));     // Origin x
     p[1] = (float)rc1.bottom / 2;                                // Origin y
-    p[2] = (float)(rc1.right - rc2.right) / GRID_NUM;         // x scale
+    p[2] = (float)(rc1.right - BOUNDARY) / GRID_NUM;            // x scale
     p[3] = (float) rc1.bottom / GRID_NUM;                         // y scale
 
     return;
@@ -85,40 +84,43 @@ void MainWindow::OnPaintM()
         UpdateWindow(hb4);
         UpdateWindow(hb5);*/
 
+
         BeginPaint(m_hwnd, &ps);
 
         pRenderTargetM->BeginDraw();
 
         pRenderTargetM->Clear(D2D1::ColorF(D2D1::ColorF::Gold));
 
-        if (mode != InitialMode)
+        switch (mode)
         {
-
-            DrawGraph(pRenderTargetM, pBrushM);
-
-            // cirle
-            for (auto i = ellipses1.begin(); i != ellipses1.end(); ++i)
-                (*i)->Draw(pRenderTargetM, pBrushM);
-
-            for (auto j = ellipses2.begin(); j != ellipses2.end(); ++j)
-                (*j)->Draw(pRenderTargetM, pBrushM);
-
-            if (Selection1())
-            {
-                pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-                pRenderTargetM->DrawEllipse(Selection1()->ellipse, pBrushM, 2.0f);
-                pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-                pRenderTargetM->FillEllipse(Selection1()->ellipse, pBrushM);
-            }
-
-            if (Selection2())
-            {
-                pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-                pRenderTargetM->DrawEllipse(Selection2()->ellipse, pBrushM, 2.0f);
-                pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-                pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
-            }
+        case InitialMode:
+            break;
+        case MinkowskiDifferenceMode:
+            break;
+        case MinkowskiSumSelectMode:
+            break;
+        case QuickhullMode:
+            ShowQuickhull();
+            break;
+        case PointConvexHullMode:
+            break;
+        case GJKMode:
+            break;
         }
+
+
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+        D2D1_RECT_F rectangle = D2D1::RectF(
+            0.0F,
+            0.0F,
+            BOUNDARY,
+            rc.bottom
+        );
+        pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+        pRenderTargetM->DrawRectangle(&rectangle, pBrushM, 5.0F);
+        pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
+        pRenderTargetM->FillRectangle(&rectangle, pBrushM);
 
 
         hr = pRenderTargetM->EndDraw();
@@ -208,8 +210,35 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
     const float dipX = DPIScale::PixelsToDipsX(pixelX);
     const float dipY = DPIScale::PixelsToDipsY(pixelY);
 
+    std::vector<D2D1_POINT_2F>* p1=nullptr, * p2=nullptr;
+    switch (mode)
+    {
+    case InitialMode:
+        break;
+    case MinkowskiDifferenceMode:
+        p1 = &MDraw1;
+        p2 = &MDraw2;
+        break;
+    case MinkowskiSumSelectMode:
+        p1 = &MSraw1;
+        p2 = &MSraw2;
+        break;
+    case QuickhullMode:
+        p1 = &Qraw;
+        break;
+    case PointConvexHullMode:
+        p1 = &PCtarget;
+        p2 = &PCraw;
+        break;
+    case GJKMode:
+        p1 = &GJKraw1;
+        p2 = &GJKraw2;
+        break;
+    }
+
     if ((flags & MK_LBUTTON) && (Selection1()))
     {
+        UpdatePoint(p1, Selection1()->xpos, Selection1()->ypos, ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y));
         Selection1()->xpos = ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x);
         Selection1()->ypos = ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y);
         InvalidateRect(m_hwnd, NULL, FALSE);
@@ -217,6 +246,7 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
 
     if ((flags & MK_LBUTTON) && (Selection2()))
     {
+        UpdatePoint(p2, Selection2()->xpos, Selection2()->ypos, ConvertDipToX(Selection2()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection2()->ellipse.point.y = dipY + ptMouseM.y));
         Selection2()->xpos = ConvertDipToX(Selection2()->ellipse.point.x = dipX + ptMouseM.x);
         Selection2()->ypos = ConvertDipToY(Selection2()->ellipse.point.y = dipY + ptMouseM.y);
         InvalidateRect(m_hwnd, NULL, FALSE);
@@ -235,30 +265,29 @@ void MainWindow::OnKeyDown(UINT vkey)
     return;
 };
 
-HRESULT MainWindow::InsertPoints(D2D1_POINT_2F arr1[], D2D1_POINT_2F arr2[], int size1, int size2)
+HRESULT MainWindow::InsertPoints(std::vector<D2D1_POINT_2F>* vec1, std::vector<D2D1_POINT_2F>* vec2)
 {
     try
     {
-        
-        for (int i = 0; i < size1; i++) {
+        for (int i = 0; i < vec1->size(); i++) {
             selection1 = ellipses1.insert(ellipses1.end(), shared_ptr<MyEllipse>(new MyEllipse()));
 
             Selection1()->ellipse.point = D2D1::Point2F(
-                ConvertXToDip(Selection1()->xpos = arr1[i].x),
-                ConvertYToDip(Selection1()->ypos = arr1[i].y)
+                ConvertXToDip(Selection1()->xpos = (*vec1)[i].x),
+                ConvertYToDip(Selection1()->ypos = (*vec1)[i].y)
             );
             Selection1()->ellipse.radiusX = Selection1()->ellipse.radiusY = 5.0f;
             Selection1()->color = D2D1::ColorF(D2D1::ColorF::Blue);
             ClearSelection1();
         }
 
-        if (arr2 != NULL) {
-            for (int i = 0; i < size2; i++) {
+        if (vec2 != NULL) {
+            for (int i = 0; i < vec2->size(); i++) {
                 selection2 = ellipses2.insert(ellipses2.end(), shared_ptr<MyEllipse>(new MyEllipse()));
 
                 Selection2()->ellipse.point = D2D1::Point2F(
-                    ConvertXToDip(Selection2()->xpos = arr2[i].x),
-                    ConvertYToDip(Selection2()->ypos = arr2[i].y)
+                    ConvertXToDip(Selection2()->xpos = (*vec2)[i].x),
+                    ConvertYToDip(Selection2()->ypos = (*vec2)[i].y)
                 );
                 Selection2()->ellipse.radiusX = Selection2()->ellipse.radiusY = 5.0f;
                 Selection2()->color = D2D1::ColorF(D2D1::ColorF::Blue);
@@ -316,47 +345,55 @@ void MainWindow::SetMode(Mode m)
     case MinkowskiDifferenceMode:
         ellipses1.clear();
         ellipses2.clear();
-        GenerateInitialPoints(MD1, MDSIZE);
-        GenerateInitialPoints(MD2, MDSIZE);
-        InsertPoints(MD1, MD2, MDSIZE, MDSIZE);
+        GenerateInitialPoints(&MDraw1, MDSIZE);
+        GenerateInitialPoints(&MDraw2, MDSIZE);
+        SortPoints(&MDraw1);
+        SortPoints(&MDraw2);
+        InsertPoints(&MDraw1, &MDraw1);
         break;
 
     case MinkowskiSumSelectMode:
         ellipses1.clear();
         ellipses2.clear();
-        GenerateInitialPoints(MS1, MSSIZE);
-        GenerateInitialPoints(MS2, MSSIZE);
-        InsertPoints(MS1, MS2, MSSIZE, MSSIZE);
+        GenerateInitialPoints(&MSraw1, MSSIZE);
+        GenerateInitialPoints(&MSraw1, MSSIZE);
+        SortPoints(&MSraw1);
+        SortPoints(&MSraw2);
+        InsertPoints(&MSraw1, &MSraw2);
         break;
 
     case QuickhullMode:
         ellipses1.clear();
         ellipses2.clear();
-        GenerateInitialPoints(Q, QSIZE);
-        InsertPoints(Q, NULL, QSIZE, 0);
+        GenerateInitialPoints(&Qraw, QSIZE);
+        SortPoints(&Qraw);
+        InsertPoints(&Qraw, NULL);
         break;
 
     case PointConvexHullMode:
         ellipses1.clear();
         ellipses2.clear();
-        GenerateInitialPoints(PC1, 1);
-        GenerateInitialPoints(PC2, PCSIZE);
-        InsertPoints(PC1, PC2, 1, PCSIZE);
+        GenerateInitialPoints(&PCtarget, 1);
+        GenerateInitialPoints(&PCraw, PCSIZE);
+        SortPoints(&PCraw);
+        InsertPoints(&PCtarget, &PCraw);
         break;
 
     case GJKMode:
         ellipses1.clear();
         ellipses2.clear();
-        GenerateInitialPoints(GJK1, GJKSIZE);
-        GenerateInitialPoints(GJK2, GJKSIZE);
-        InsertPoints(GJK1, GJK2, GJKSIZE, GJKSIZE);
+        GenerateInitialPoints(&GJKraw1, GJKSIZE);
+        GenerateInitialPoints(&GJKraw2, GJKSIZE);
+        SortPoints(&GJKraw1);
+        SortPoints(&GJKraw2);
+        InsertPoints(&GJKraw1, &GJKraw2);
         break;
     }
 
     hCursor = LoadCursor(NULL, cursor);
     SetCursor(hCursor);
     OnPaintM();
-    OnPaintG();
+    //OnPaintG();
 }
 
 
@@ -366,7 +403,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow)
     srand(time(nullptr));
     MainWindow win;
 
-    if (!win.Create(L"Convex Hull Algorithms", WS_OVERLAPPEDWINDOW))
+    if (!win.Create(L"Convex Hull Algorithms", WS_OVERLAPPEDWINDOW| WS_CLIPCHILDREN))
     {
         return 0;
     }
@@ -408,19 +445,19 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
         DiscardGraphicsResourcesM();
-        DiscardGraphicsResourcesG();
+        //DiscardGraphicsResourcesG();
         SafeRelease(&pFactory);
         PostQuitMessage(0);
         return 0;
 
     case WM_PAINT:
         OnPaintM();
-        OnPaintG();
+        //OnPaintG();
         return 0;
 
     case WM_SIZE:
         ResizeM();
-        ResizeG();
+        //ResizeG();
         return 0;
 
     case WM_LBUTTONDOWN:
@@ -442,6 +479,10 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return TRUE;
         }
         break;
+
+    //case WM_CTLCOLORBTN:
+    //    OnPaintB();
+    //    break;
 
     case WM_KEYDOWN:
         OnKeyDown((UINT)wParam);

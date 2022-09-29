@@ -2,26 +2,26 @@
 
 void MainWindow::CreateLayout()
 {
-    RECT rc;
-    GetClientRect(m_hwnd, &rc);
+    //RECT rc;
+    //GetClientRect(m_hwnd, &rc);
 
-    gwnd = CreateWindowEx(
-        0,							// Optional window styles.
-        L"Static",					    // Window class
-        L"Graph",	                            // Window text
-        WS_CHILD | WS_VISIBLE,				// Window style
-        0, 0, 350, rc.bottom,                     // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_GRAPH,					    // Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
+    //gwnd = CreateWindowEx(
+    //    0,							// Optional window styles.
+    //    L"Static",					    // Window class
+    //    L"Graph",	                            // Window text
+    //    WS_CHILD | WS_VISIBLE,				// Window style
+    //    0, 0, 350, rc.bottom,                     // Size and position
+    //    m_hwnd,									// Parent window
+    //    (HMENU)ID_GRAPH,					    // Menu
+    //    GetModuleHandle(NULL),					// Instance handle
+    //    NULL									// Additional application data
+    //);
 
     hb1 = CreateWindowEx(//windowW
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Minkowski Difference",	            // Window text
-        WS_CHILD | WS_VISIBLE ,					// Window style
+        WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 30, 300, 50,                        // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_MD_BUTTON,					// Menu
@@ -33,7 +33,7 @@ void MainWindow::CreateLayout()
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Minkowski Sum",	                    // Window text
-        WS_CHILD | WS_VISIBLE ,					// Window style
+        WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 130, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_MS_BUTTON,					// Menu
@@ -45,7 +45,7 @@ void MainWindow::CreateLayout()
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Quickhull",	                        // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
+        WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 230, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_Q_BUTTON,					    // Menu
@@ -57,7 +57,7 @@ void MainWindow::CreateLayout()
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Point Convex Hull",	                // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
+        WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 330, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_PCH_BUTTON,					// Menu
@@ -69,7 +69,7 @@ void MainWindow::CreateLayout()
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"GJK",	                                // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
+        WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 430, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_PCH_BUTTON,					// Menu
@@ -81,12 +81,11 @@ void MainWindow::CreateLayout()
 void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB){
     pB->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
     D2D1_SIZE_F size = pRenderTargetM->GetSize();
-    RECT rc;
-    GetClientRect(gwnd, &rc);
+
     float o[4];
     GetGraphInfo(o);
 
-    for (int i = 0; i < GRID_NUM; i++)
+    for (int i = 0; i < GRID_NUM/2; i++)
     {
         if (i == 0) {
             pRenderTargetM->DrawLine(
@@ -96,7 +95,7 @@ void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB)
                 1.5f
             );
             pRenderTargetM->DrawLine(
-                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1])),
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)BOUNDARY), DPIScale::PixelsToDipsY(o[1])),
                 D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1])),
                 pBrushM,
                 1.5f
@@ -110,7 +109,7 @@ void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB)
                 0.5f
             );
             pRenderTargetM->DrawLine(
-                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1] + (i * o[3]))),
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)BOUNDARY), DPIScale::PixelsToDipsY(o[1] + (i * o[3]))),
                 D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1] + (i * o[3]))),
                 pBrushM,
                 0.5f
@@ -122,7 +121,7 @@ void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB)
                 0.5f
             );
             pRenderTargetM->DrawLine(
-                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1] - (i * o[3]))),
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)BOUNDARY), DPIScale::PixelsToDipsY(o[1] - (i * o[3]))),
                 D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1] - (i * o[3]))),
                 pBrushM,
                 0.5f
@@ -132,73 +131,81 @@ void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB)
 }
 
 
-HRESULT MainWindow::CreateGraphicsResourcesG()
-{
-    HRESULT hr = S_OK;
-    if (pRenderTargetG == NULL)
-    {
-        RECT rc;
-        GetClientRect(gwnd, &rc);
+//HRESULT MainWindow::CreateGraphicsResourcesG()
+//{
+//    HRESULT hr = S_OK;
+//    if (pRenderTargetG == NULL)
+//    {
+//        RECT rc;
+//        GetClientRect(gwnd, &rc);
+//
+//        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+//
+//        hr = pFactory->CreateHwndRenderTarget(
+//            D2D1::RenderTargetProperties(),
+//            D2D1::HwndRenderTargetProperties(gwnd, size),
+//            &pRenderTargetG);
+//
+//        if (SUCCEEDED(hr))
+//        {
+//            const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0); //
+//            hr = pRenderTargetG->CreateSolidColorBrush(color, &pBrushG);
+//        }
+//    }
+//    return hr;
+//}
 
-        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+//void MainWindow::DiscardGraphicsResourcesG()
+//{
+//    SafeRelease(&pRenderTargetG);
+//    SafeRelease(&pBrushG);
+//
+//}
 
-        hr = pFactory->CreateHwndRenderTarget(
-            D2D1::RenderTargetProperties(),
-            D2D1::HwndRenderTargetProperties(gwnd, size),
-            &pRenderTargetG);
+//void MainWindow::OnPaintG()
+//{
+//    HRESULT hr = CreateGraphicsResourcesG();
+//    if (SUCCEEDED(hr))
+//    {
+//        PAINTSTRUCT ps;
+//        BeginPaint(gwnd, &ps);
+//
+//        pRenderTargetG->BeginDraw();
+//
+//        pRenderTargetG->Clear(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
+//
+//        hr = pRenderTargetG->EndDraw();
+//        if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
+//        {
+//            DiscardGraphicsResourcesG();
+//        }
+//        EndPaint(gwnd, &ps);
+//    }
+//    return;
+//}
 
-        if (SUCCEEDED(hr))
-        {
-            const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0); //
-            hr = pRenderTargetG->CreateSolidColorBrush(color, &pBrushG);
-        }
-    }
-    return hr;
-}
+//void MainWindow::OnPaintB() {
+//    Button_SetText(hb1, L"Minkowski Difference");
+//    Button_SetText(hb2, L"Minkowski Sum");
+//    Button_SetText(hb3, L"Quickhull");
+//    Button_SetText(hb4, L"Point Convex Hull");
+//    Button_SetText(hb5, L"GJK");
+//
+//    return;
+//}
 
-void MainWindow::DiscardGraphicsResourcesG()
-{
-    SafeRelease(&pRenderTargetG);
-    SafeRelease(&pBrushG);
-
-}
-
-void MainWindow::OnPaintG()
-{
-    HRESULT hr = CreateGraphicsResourcesG();
-    if (SUCCEEDED(hr))
-    {
-        PAINTSTRUCT ps;
-        BeginPaint(gwnd, &ps);
-
-        pRenderTargetG->BeginDraw();
-
-        pRenderTargetG->Clear(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
-
-        hr = pRenderTargetG->EndDraw();
-        if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
-        {
-            DiscardGraphicsResourcesG();
-        }
-        EndPaint(gwnd, &ps);
-
-    }
-    return;
-}
-
-
-void MainWindow::ResizeG()
-{
-    if (pRenderTargetG != NULL)
-    {
-        RECT rc;
-        GetClientRect(m_hwnd, &rc);
-
-        SetWindowPos(gwnd, NULL, 0, 0, 350, rc.bottom, SWP_NOMOVE | SWP_NOZORDER);
-
-        InvalidateRect(gwnd, NULL, FALSE);
-    }
-}
+//void MainWindow::ResizeG()
+//{
+//    if (pRenderTargetG != NULL)
+//    {
+//        RECT rc;
+//        GetClientRect(m_hwnd, &rc);
+//
+//        SetWindowPos(gwnd, NULL, 0, 0, 350, rc.bottom, SWP_NOMOVE | SWP_NOZORDER);
+//
+//        InvalidateRect(gwnd, NULL, FALSE);
+//    }
+//}
 
 
 
