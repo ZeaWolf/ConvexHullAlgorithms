@@ -55,6 +55,7 @@ BEGIN
     VK_F1,          ID_DRAW_MODE,           VIRTKEY, NOINVERT
     VK_F2,          ID_SELECT_MODE,         VIRTKEY, NOINVERT
     "M",            ID_TOGGLE_MODE,         VIRTKEY, CONTROL, NOINVERT
+    VK_ESCAPE,      ID_INITIAL_MODE,        VIRTKEY, NOINVERT
 END
 
 #endif    // English (United States) resources

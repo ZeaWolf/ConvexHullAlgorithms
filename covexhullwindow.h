@@ -5,6 +5,8 @@
 #define ID_GJK_BUTTON		384
 #define ID_GRAPH			385
 
+#define GRID_NUM            30
+
 #include <windows.h>
 #include <Windowsx.h>
 #include <d2d1.h>
@@ -53,6 +55,18 @@ public:
     {
         return static_cast<float>(y) / scaleY;
     }
+
+    template <typename T>
+    static float DipsToPixelsX(T x)
+    {
+        return static_cast<float>(x) * scaleX;
+    }
+
+    template <typename T>
+    static float DipsToPixelsY(T y)
+    {
+        return static_cast<float>(y) * scaleY;
+    }
 };
 
 //float DPIScale::scaleX = 1.0f;
@@ -62,6 +76,8 @@ struct MyEllipse
 {
     D2D1_ELLIPSE    ellipse;
     D2D1_COLOR_F    color;
+    float           xpos;
+    float           ypos;
 
     void Draw(ID2D1RenderTarget* pRT, ID2D1SolidColorBrush* pBrush)
     {
@@ -91,9 +107,12 @@ class MainWindow : public BaseWindow<MainWindow>
 
     enum Mode
     {
-        DrawMode,
-        SelectMode,
-        DragMode
+        InitialMode,
+        MinkowskiDifferenceMode,
+        MinkowskiSumSelectMode,
+        QuickhullMode,
+        PointConvexHullMode,
+        GJKMode
     };
 
     HCURSOR                 hCursor;
@@ -110,7 +129,12 @@ class MainWindow : public BaseWindow<MainWindow>
     Mode                    mode;
     size_t                  nextColor;
 
-    HWND                    gwnd;
+    HWND                    gwnd = NULL;
+    HWND                    hb1 = NULL;
+    HWND                    hb2 = NULL;
+    HWND                    hb3 = NULL;
+    HWND                    hb4 = NULL;
+    HWND                    hb5 = NULL;
 
     list<shared_ptr<MyEllipse>>             ellipses;
     list<shared_ptr<MyEllipse>>::iterator   selection;
@@ -128,7 +152,7 @@ class MainWindow : public BaseWindow<MainWindow>
     }
 
     void    ClearSelection() { selection = ellipses.end(); }
-    HRESULT InsertEllipse(float x, float y);
+    HRESULT InsertPoints(float x[], float y[], int size);
 
     BOOL    HitTest(float x, float y);
     void    SetMode(Mode m);
@@ -147,14 +171,23 @@ class MainWindow : public BaseWindow<MainWindow>
     void    OnMouseMove(int pixelX, int pixelY, DWORD flags);
     void    OnKeyDown(UINT vkey);
 
-    void    OnLButtonDownG(int pixelX, int pixelY, DWORD flags);
-    void    OnLButtonUpG();
-    void    OnMouseMoveG(int pixelX, int pixelY, DWORD flags);
+    
+
+    //void    OnLButtonDownG(int pixelX, int pixelY, DWORD flags);
+    //void    OnLButtonUpG();
+    //void    OnMouseMoveG(int pixelX, int pixelY, DWORD flags);
     //void    OnKeyDown(UINT vkey);
 
     //C
+    void    DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB);
     void    CreateLayout();
+    void    GetGraphInfo(float p[]);
+    float   ConvertXToDip(float x);
+    float   ConvertYToDip(float y);
+    float   ConvertDipToX(float x);
+    float   ConvertDipToY(float y);
     //C
+
 
 public:
 

@@ -2,78 +2,135 @@
 
 void MainWindow::CreateLayout()
 {
-    CreateWindowEx(
+    RECT rc;
+    GetClientRect(m_hwnd, &rc);
+
+    gwnd = CreateWindowEx(
+        0,							// Optional window styles.
+        L"Static",					    // Window class
+        L"Graph",	                            // Window text
+        WS_CHILD | WS_VISIBLE,				// Window style
+        0, 0, 350, rc.bottom,                     // Size and position
+        m_hwnd,									// Parent window
+        (HMENU)ID_GRAPH,					    // Menu
+        GetModuleHandle(NULL),					// Instance handle
+        NULL									// Additional application data
+    );
+
+    hb1 = CreateWindowEx(//windowW
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Minkowski Difference",	            // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 30, 300, 50,                        // Size and position
+        WS_CHILD | WS_VISIBLE ,					// Window style
+        20, 30, 300, 50,                        // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_MD_BUTTON,					// Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
 
-    CreateWindowEx(
+    hb2 = CreateWindowEx(
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Minkowski Sum",	                    // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        10, 130, 300, 50,                       // Size and position
+        WS_CHILD | WS_VISIBLE ,					// Window style
+        20, 130, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_MS_BUTTON,					// Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
 
-    CreateWindowEx(
+    hb3 = CreateWindowEx(
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Quickhull",	                        // Window text
         WS_CHILD | WS_VISIBLE,					// Window style
-        10, 230, 300, 50,                       // Size and position
+        20, 230, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_Q_BUTTON,					    // Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
 
-    CreateWindowEx(
+    hb4 = CreateWindowEx(
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"Point Convex Hull",	                // Window text
         WS_CHILD | WS_VISIBLE,					// Window style
-        10, 330, 300, 50,                       // Size and position
+        20, 330, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_PCH_BUTTON,					// Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
 
-    CreateWindowEx(
+    hb5 = CreateWindowEx(
         0,										// Optional window styles.
         L"Button",					            // Window class
         L"GJK",	                                // Window text
         WS_CHILD | WS_VISIBLE,					// Window style
-        10, 430, 300, 50,                       // Size and position
+        20, 430, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
         (HMENU)ID_PCH_BUTTON,					// Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
-
-    gwnd = CreateWindowEx(
-        SS_BLACKFRAME,							// Optional window styles.
-        L"Static",					    // Window class
-        L"Graph",	                            // Window text
-        WS_CHILD | WS_VISIBLE,					// Window style
-        400, 20, 850, 850,                     // Size and position
-        m_hwnd,									// Parent window
-        (HMENU)ID_GRAPH,					    // Menu
-        GetModuleHandle(NULL),					// Instance handle
-        NULL									// Additional application data
-    );
 };
+
+void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB){
+    pB->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+    D2D1_SIZE_F size = pRenderTargetM->GetSize();
+    RECT rc;
+    GetClientRect(gwnd, &rc);
+    float o[4];
+    GetGraphInfo(o);
+
+    for (int i = 0; i < GRID_NUM; i++)
+    {
+        if (i == 0) {
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0]), 0.0f),
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0]), size.height),
+                pBrushM,
+                1.5f
+            );
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1])),
+                D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1])),
+                pBrushM,
+                1.5f
+            );
+        }
+        else {
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0] + (i*o[2])), 0.0f),
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0] + (i*o[2])), size.height),
+                pBrushM,
+                0.5f
+            );
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1] + (i * o[3]))),
+                D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1] + (i * o[3]))),
+                pBrushM,
+                0.5f
+            );
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0] - (i * o[2])), 0.0f),
+                D2D1::Point2F(DPIScale::PixelsToDipsX(o[0] - (i * o[2])), size.height),
+                pBrushM,
+                0.5f
+            );
+            pRenderTargetM->DrawLine(
+                D2D1::Point2F(DPIScale::PixelsToDipsX((float)rc.right), DPIScale::PixelsToDipsY(o[1] - (i * o[3]))),
+                D2D1::Point2F(size.width, DPIScale::PixelsToDipsY(o[1] - (i * o[3]))),
+                pBrushM,
+                0.5f
+            );
+        }
+    }
+}
+
 
 HRESULT MainWindow::CreateGraphicsResourcesG()
 {
@@ -116,48 +173,48 @@ void MainWindow::OnPaintG()
 
         pRenderTargetG->BeginDraw();
 
-        pRenderTargetG->Clear(D2D1::ColorF(D2D1::ColorF::Gold));
+        pRenderTargetG->Clear(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
 
-        pBrushG->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+        //pBrushG->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 
-        D2D1_SIZE_F size = pRenderTargetG->GetSize();
-        static float midx = size.width / 2;
-        static float midy = size.height / 2;
-        pRenderTargetG->DrawLine(
-            D2D1::Point2F(static_cast<FLOAT>(midx), 0.0f),
-            D2D1::Point2F(static_cast<FLOAT>(midx), size.height),
-            pBrushG,
-            1.0f
-        );
+        //D2D1_SIZE_F size = pRenderTargetG->GetSize();
+        //static float midx = size.width / 2;
+        //static float midy = size.height / 2;
+        //pRenderTargetG->DrawLine(
+        //    D2D1::Point2F(static_cast<FLOAT>(midx), 0.0f),
+        //    D2D1::Point2F(static_cast<FLOAT>(midx), size.height),
+        //    pBrushG,
+        //    1.0f
+        //);
 
-        pRenderTargetG->DrawLine(
-            D2D1::Point2F(0.0f, static_cast<FLOAT>(midy)),
-            D2D1::Point2F(size.width, static_cast<FLOAT>(midy)),
-            pBrushG,
-            1.0f
-        );
+        //pRenderTargetG->DrawLine(
+        //    D2D1::Point2F(0.0f, static_cast<FLOAT>(midy)),
+        //    D2D1::Point2F(size.width, static_cast<FLOAT>(midy)),
+        //    pBrushG,
+        //    1.0f
+        //);
 
 
-        float tempx, tempy;
-        for (tempx = 0; tempx < size.width; tempx += (size.width/16))
-        {
-            pRenderTargetG->DrawLine(
-                D2D1::Point2F(static_cast<FLOAT>(tempx), 0.0f),
-                D2D1::Point2F(static_cast<FLOAT>(tempx), size.height),
-                pBrushG,
-                0.5f
-            );
-        }
+        //float tempx, tempy;
+        //for (tempx = 0; tempx < size.width; tempx += (size.width/16))
+        //{
+        //    pRenderTargetG->DrawLine(
+        //        D2D1::Point2F(static_cast<FLOAT>(tempx), 0.0f),
+        //        D2D1::Point2F(static_cast<FLOAT>(tempx), size.height),
+        //        pBrushG,
+        //        0.5f
+        //    );
+        //}
 
-        for (tempy = 0; tempy < size.height; tempy += (size.height/16))
-        {
-            pRenderTargetG->DrawLine(
-                D2D1::Point2F(0.0f, static_cast<FLOAT>(tempy)),
-                D2D1::Point2F(size.width, static_cast<FLOAT>(tempy)),
-                pBrushG,
-                0.5f
-            );
-        }
+        //for (tempy = 0; tempy < size.height; tempy += (size.height/16))
+        //{
+        //    pRenderTargetG->DrawLine(
+        //        D2D1::Point2F(0.0f, static_cast<FLOAT>(tempy)),
+        //        D2D1::Point2F(size.width, static_cast<FLOAT>(tempy)),
+        //        pBrushG,
+        //        0.5f
+        //    );
+        //}
 
 
         hr = pRenderTargetG->EndDraw();
@@ -198,50 +255,14 @@ void MainWindow::ResizeG()
     if (pRenderTargetG != NULL)
     {
         RECT rc;
-        GetClientRect(gwnd, &rc);
+        GetClientRect(m_hwnd, &rc);
 
-        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
-        pRenderTargetG->Resize(size);
+        SetWindowPos(gwnd, NULL, 0, 0, 350, rc.bottom, SWP_NOMOVE | SWP_NOZORDER);
 
         InvalidateRect(gwnd, NULL, FALSE);
     }
 }
 
-void MainWindow::OnLButtonDownG(int pixelX, int pixelY, DWORD flags)
-{
-    const float dipX = DPIScale::PixelsToDipsX(pixelX);
-    const float dipY = DPIScale::PixelsToDipsY(pixelY);
-
-    if (mode == DrawMode)
-    {
-        POINT pt = { pixelX, pixelY };
-
-        if (DragDetect(m_hwnd, pt))
-        {
-            SetCapture(m_hwnd);
-
-            // Start a new ellipse.
-            InsertEllipse(dipX, dipY);
-        }
-    }
-    else
-    {
-        ClearSelection();
-
-        if (HitTest(dipX, dipY))
-        {
-            SetCapture(m_hwnd);
-
-            ptMouseM = Selection()->ellipse.point;
-            ptMouseM.x -= dipX;
-            ptMouseM.y -= dipY;
-
-            SetMode(DragMode);
-        }
-    }
-    InvalidateRect(m_hwnd, NULL, FALSE);
-}
 
 
 //
