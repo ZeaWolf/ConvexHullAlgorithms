@@ -175,75 +175,12 @@ void MainWindow::OnPaintG()
 
         pRenderTargetG->Clear(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
 
-        //pBrushG->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-
-        //D2D1_SIZE_F size = pRenderTargetG->GetSize();
-        //static float midx = size.width / 2;
-        //static float midy = size.height / 2;
-        //pRenderTargetG->DrawLine(
-        //    D2D1::Point2F(static_cast<FLOAT>(midx), 0.0f),
-        //    D2D1::Point2F(static_cast<FLOAT>(midx), size.height),
-        //    pBrushG,
-        //    1.0f
-        //);
-
-        //pRenderTargetG->DrawLine(
-        //    D2D1::Point2F(0.0f, static_cast<FLOAT>(midy)),
-        //    D2D1::Point2F(size.width, static_cast<FLOAT>(midy)),
-        //    pBrushG,
-        //    1.0f
-        //);
-
-
-        //float tempx, tempy;
-        //for (tempx = 0; tempx < size.width; tempx += (size.width/16))
-        //{
-        //    pRenderTargetG->DrawLine(
-        //        D2D1::Point2F(static_cast<FLOAT>(tempx), 0.0f),
-        //        D2D1::Point2F(static_cast<FLOAT>(tempx), size.height),
-        //        pBrushG,
-        //        0.5f
-        //    );
-        //}
-
-        //for (tempy = 0; tempy < size.height; tempy += (size.height/16))
-        //{
-        //    pRenderTargetG->DrawLine(
-        //        D2D1::Point2F(0.0f, static_cast<FLOAT>(tempy)),
-        //        D2D1::Point2F(size.width, static_cast<FLOAT>(tempy)),
-        //        pBrushG,
-        //        0.5f
-        //    );
-        //}
-
-
         hr = pRenderTargetG->EndDraw();
         if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
         {
             DiscardGraphicsResourcesG();
         }
         EndPaint(gwnd, &ps);
-
-
-        //for (int x = 0; x < width; x += 10)
-        //{
-        //    m_pRenderTarget->DrawLine(
-        //        D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-        //        D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
-        //        m_pLightSlateGrayBrush,
-        //        0.5f
-        //    );
-        //}
-
-        //for (int y = 0; y < height; y += 10)
-        //{
-        //    m_pRenderTarget->DrawLine(
-        //        D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-        //        D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
-        //        m_pLightSlateGrayBrush,
-        //        0.5f
-        //    );
-        //}
 
     }
     return;

@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="algorithmanagemnet.cpp" />
     <ClCompile Include="graphwindow.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

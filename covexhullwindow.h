@@ -6,6 +6,14 @@
 #define ID_GRAPH			385
 
 #define GRID_NUM            30
+#define LOWRAND             -15
+#define UPPRAND             15
+
+#define MDSIZE              6
+#define MSSIZE              6
+#define QSIZE               15
+#define PCSIZE              15
+#define GJKSIZE             6
 
 #include <windows.h>
 #include <Windowsx.h>
@@ -19,6 +27,11 @@ using namespace std;
 
 #include "basewin.h"
 #include "resource.h"
+
+//random number generator
+#include<cstdlib>
+#include<ctime>
+
 
 template <class T> void SafeRelease(T** ppT)
 {
@@ -136,27 +149,51 @@ class MainWindow : public BaseWindow<MainWindow>
     HWND                    hb4 = NULL;
     HWND                    hb5 = NULL;
 
-    list<shared_ptr<MyEllipse>>             ellipses;
-    list<shared_ptr<MyEllipse>>::iterator   selection;
+    D2D1_POINT_2F           MD1[MDSIZE];
+    D2D1_POINT_2F           MD2[MDSIZE];
 
-    shared_ptr<MyEllipse> Selection()
-    {
-        if (selection == ellipses.end())
-        {
-            return nullptr;
-        }
-        else
-        {
-            return (*selection);
-        }
-    }
+    D2D1_POINT_2F           MS1[MSSIZE];
+    D2D1_POINT_2F           MS2[MSSIZE];
 
-    void    ClearSelection() { selection = ellipses.end(); }
-    HRESULT InsertPoints(float x[], float y[], int size);
+    D2D1_POINT_2F           Q[QSIZE];
 
-    BOOL    HitTest(float x, float y);
+    D2D1_POINT_2F           PC1[1];
+    D2D1_POINT_2F           PC2[PCSIZE];
+
+    D2D1_POINT_2F           GJK1[GJKSIZE];
+    D2D1_POINT_2F           GJK2[GJKSIZE];
+    
+
+    list<shared_ptr<MyEllipse>>             ellipses1;
+    list<shared_ptr<MyEllipse>>::iterator   selection1;
+
+    list<shared_ptr<MyEllipse>>             ellipses2;
+    list<shared_ptr<MyEllipse>>::iterator   selection2;
+
+    shared_ptr<MyEllipse> Selection1() {
+        if (selection1 == ellipses1.end()) return nullptr;
+        else return (*selection1);
+    };
+
+    shared_ptr<MyEllipse> Selection2() {
+        if (selection2 == ellipses2.end()) return nullptr;
+        else return (*selection2);
+    };
+
+    void    ClearSelection1() { selection1 = ellipses1.end(); }
+    void    ClearSelection2() { selection2 = ellipses2.end(); }
+
+
+    BOOL    HitTest1(float x, float y);
+    BOOL    HitTest2(float x, float y);
+
+    HRESULT InsertPoints(D2D1_POINT_2F arr1[], D2D1_POINT_2F arr2[], int size1, int size2);
+
+
     void    SetMode(Mode m);
     void    MoveSelection(float x, float y);
+
+    //
     HRESULT CreateGraphicsResourcesM();
     HRESULT CreateGraphicsResourcesG();
     void    DiscardGraphicsResourcesM();
@@ -166,6 +203,7 @@ class MainWindow : public BaseWindow<MainWindow>
     void    ResizeM();
     void    ResizeG();
 
+    //
     void    OnLButtonDown(int pixelX, int pixelY, DWORD flags);
     void    OnLButtonUp();
     void    OnMouseMove(int pixelX, int pixelY, DWORD flags);
@@ -194,7 +232,7 @@ public:
     MainWindow() : pFactory(NULL),
         pRenderTargetM(NULL), pBrushM(NULL), ptMouseM(D2D1::Point2F()),
         pRenderTargetG(NULL), pBrushG(NULL), ptMouseG(D2D1::Point2F()),
-        nextColor(0), selection(ellipses.end())
+        nextColor(0), selection1(ellipses1.end()), selection2(ellipses2.end())
     {
     }
 
@@ -202,6 +240,11 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
+static float randx[] = { 1, 2, 0, 5, 6, -5 };
+static float randy[] = { 2, 5, 8, -2, 0, -5 };
+
+int RNG(int a, int b);
+void GenerateInitialPoints(D2D1_POINT_2F arr[], int size);
 
 
 
