@@ -6,7 +6,7 @@ CalculationHelper::CalculationHelper()
 {
 }
 
-void CalculationHelper::GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F> * results)
+void CalculationHelper::GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F>* results)
 {
 	points = SortByAngle(points);
 
@@ -65,7 +65,7 @@ bool CalculationHelper::SortByAngleFunc(D2D1_POINT_2F a, D2D1_POINT_2F b)
 }
 
 // a -> r -> c
-int CalculationHelper::IsCCW(vector a, vector b)
+int CalculationHelper::IsCCW(cvector a, cvector b)
 {
 	int dir = a.x * b.y - a.y * b.x;
 	if (dir == 0) return 0;
@@ -73,9 +73,9 @@ int CalculationHelper::IsCCW(vector a, vector b)
 	return -1;
 }
 
-vector CalculationHelper::ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b)
+cvector CalculationHelper::ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b)
 {
-	vector v = { b.x - a.x, b.y - a.y };
+	cvector v = { b.x - a.x, b.y - a.y };
 	return v;
 }
 
@@ -112,8 +112,8 @@ bool CalculationHelper::IsPointInsideConvex(std::vector<D2D1_POINT_2F> points, D
 		return false;
 	}
 
-	vector pToNp = CalculationHelper::ToVector(points[lastIndexUnderTarget], points[lastIndexUnderTarget + 1]); // vector (point to the next point)
-	vector pToT = CalculationHelper::ToVector(points[lastIndexUnderTarget], t); // vector (point to target)
+	cvector pToNp = CalculationHelper::ToVector(points[lastIndexUnderTarget], points[lastIndexUnderTarget + 1]); // vector (point to the next point)
+	cvector pToT = CalculationHelper::ToVector(points[lastIndexUnderTarget], t); // vector (point to target)
 
 	bool result = (CalculationHelper::IsCCW(pToNp, pToT) != -1);
 
@@ -136,8 +136,8 @@ D2D1_POINT_2F CalculationHelper::GetLeftMostPoint(std::vector<D2D1_POINT_2F> hul
 
 int CalculationHelper::GetLastIndexUnderTarget(std::vector<D2D1_POINT_2F> hulls, D2D1_POINT_2F lowestPoint, D2D1_POINT_2F target)
 {
-	vector t = CalculationHelper::ToVector(lowestPoint, target);
-	vector v;
+	cvector t = CalculationHelper::ToVector(lowestPoint, target);
+	cvector v;
 	int index = 0;
 
 	for (int i = 1; i < hulls.size(); i++)

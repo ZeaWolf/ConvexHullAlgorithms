@@ -6,8 +6,8 @@
 class PointConvex : Preset
 {
 public:
-	PointConvex();
-	~PointConvex();
+	PointConvex() {};
+	~PointConvex() {};
 
-	bool Calculate(D2D1_POINT_2F t, std::vector<D2D1_POINT_2F> * pts);
+	bool Calculate(D2D1_POINT_2F t, std::vector<D2D1_POINT_2F>* pts);
 };

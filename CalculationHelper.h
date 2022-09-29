@@ -13,15 +13,15 @@ public:
 
 	CalculationHelper();
 
-	static void GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F> * results);
+	static void GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F>* results);
 
 	static std::vector<D2D1_POINT_2F> SortByAngle(std::vector<D2D1_POINT_2F> points);
 	static bool SortByAngleFunc(D2D1_POINT_2F a, D2D1_POINT_2F b);
 
 	// a -> r -> c
-	static int IsCCW(vector a, vector b);
+	static int IsCCW(cvector a, cvector b);
 
-	static vector ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b);
+	static cvector ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b);
 
 	static D2D1_POINT_2F getLowestPoint(std::vector<D2D1_POINT_2F> points);
 

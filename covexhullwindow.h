@@ -35,6 +35,7 @@ using namespace std;
 #include<ctime>
 #include<vector>
 #include <math.h>
+#include "func.h"
 
 
 template <class T> void SafeRelease(T** ppT)

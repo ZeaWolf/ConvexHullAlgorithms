@@ -146,16 +146,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="algorithmanagemnet.cpp" />
+    <ClCompile Include="CalculationHelper.cpp" />
+    <ClCompile Include="func.cpp" />
     <ClCompile Include="graphwindow.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Minkowski.cpp" />
+    <ClCompile Include="PointConvex.cpp" />
+    <ClCompile Include="QuickHull.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="DeclareDPIAware.manifest" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basewin.h" />
+    <ClInclude Include="CalculationHelper.h" />
     <ClInclude Include="covexhullwindow.h" />
+    <ClInclude Include="func.h" />
     <ClInclude Include="graphwindow.h" />
+    <ClInclude Include="Minkowski.h" />
+    <ClInclude Include="PointConvex.h" />
+    <ClInclude Include="Preset.h" />
+    <ClInclude Include="QuickHull.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

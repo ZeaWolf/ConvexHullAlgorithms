@@ -1,4 +1,6 @@
 #pragma once
+#pragma comment(lib, "d2d1")
+#include <d2d1.h>
 
 class Preset
 {
@@ -20,19 +22,13 @@ struct point
 	float y;
 };
 
-struct vector
+struct cvector
 {
 	float x;
 	float y;
 };
 
 struct pixel
-{
-	float x;
-	float y;
-};
-
-struct D2D1_POINT_2F
 {
 	float x;
 	float y;

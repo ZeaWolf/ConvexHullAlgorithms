@@ -106,10 +106,23 @@ void MainWindow::DrawPolygon(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* p
 };
 
 
+void MainWindow::UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, float newx, float newy) {
+	for (unsigned int i = 0; i < vec->size(); i++) {
+		if ((*vec)[i].x == x && (*vec)[i].y == y) {
+			(*vec)[i] = D2D1::Point2F(newx, newy);
+			break;
+		}
+	}
+	return;
+}
+
 void MainWindow::ShowQuickhull() {
 	DrawGraph(pRenderTargetM, pBrushM);
 
-	DrawPolygon(pRenderTargetM, pBrushM, &Qraw, D2D1::ColorF(D2D1::ColorF::Maroon));
+	Func::DoQuickhull(&Qraw, &Qresult);
+
+
+	DrawPolygon(pRenderTargetM, pBrushM, &Qresult, D2D1::ColorF(D2D1::ColorF::Maroon));
 
 	// cirle
 	DrawPoint(1);
@@ -129,14 +142,4 @@ void MainWindow::ShowQuickhull() {
 		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
 		pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
 	}
-}
-
-void MainWindow::UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, float newx, float newy) {
-	for (unsigned int i = 0; i < vec->size(); i++) {
-		if ((*vec)[i].x == x && (*vec)[i].y == y) {
-			(*vec)[i] = D2D1::Point2F(newx, newy);
-			break;
-		}
-	}
-	return;
 }

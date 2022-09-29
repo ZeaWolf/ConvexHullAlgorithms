@@ -1,5 +1,5 @@
 #include "QuickHull.h"
-QuickHull::QuickHull(std::vector<D2D1_POINT_2F> * _points, std::vector<D2D1_POINT_2F> * _results) : Preset()
+QuickHull::QuickHull(std::vector<D2D1_POINT_2F>* _points, std::vector<D2D1_POINT_2F>* _results)
 {
 	QuickHull::points = _points;
 	QuickHull::results = _results;
