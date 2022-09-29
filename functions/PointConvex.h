@@ -5,25 +5,9 @@
 
 class PointConvex : Preset
 {
-
 public:
-
-	std::vector<point> points;
-	std::vector<point> hulls;
-	point target;
-	bool state;
-
 	PointConvex();
 	~PointConvex();
 
-	void Reset();
-
-	void CalculateOutterHulls();
-
-	bool IsPointInsideConvex(point t);
-
-	point GetLeftMostPoint(std::vector<point> hulls);
-
-	int GetLastIndexUnderTarget(point leftMostPoint);
-
+	bool Calculate(D2D1_POINT_2F t, std::vector<D2D1_POINT_2F> * pts);
 };

@@ -7,13 +7,11 @@ class QuickHull : Preset
 
 public:
 
-	std::vector<point> points;
-	std::vector<point> hulls;
+	std::vector<D2D1_POINT_2F> * points;
+	std::vector<D2D1_POINT_2F> * results;
 
-	QuickHull();
+	QuickHull(std::vector<D2D1_POINT_2F> * points, std::vector<D2D1_POINT_2F> * results);
 	~QuickHull();
 
-	void Reset();
-
-	void CalculateOutterHulls();
+	void Calculate();
 };

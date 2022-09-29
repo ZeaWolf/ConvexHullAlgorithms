@@ -1,24 +1,24 @@
 #include "CalculationHelper.h"
 
-point CalculationHelper::lowestPoint = { 0,0 };
+D2D1_POINT_2F CalculationHelper::lowestPoint = { 0,0 };
 
 CalculationHelper::CalculationHelper()
 {
 }
 
-std::vector<point> CalculationHelper::GetOutterHulls(std::vector<point> points)
+void CalculationHelper::GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F> * results)
 {
 	points = SortByAngle(points);
 
-	std::stack<point> stack;
+	std::stack<D2D1_POINT_2F> stack;
 
 	stack.push(points[0]);
 	stack.push(points[1]);
 
 	for (int i = 2; i < points.size(); i++)
 	{
-		point next = points[i];
-		point p = stack.top();
+		D2D1_POINT_2F next = points[i];
+		D2D1_POINT_2F p = stack.top();
 		stack.pop();
 		while (!stack.empty() && IsCCW(ToVector(stack.top(), p), ToVector(p, next)) == -1)
 		{
@@ -28,27 +28,25 @@ std::vector<point> CalculationHelper::GetOutterHulls(std::vector<point> points)
 		stack.push(p);
 		stack.push(next);
 	}
-	std::vector<point> hulls;
 	int size = stack.size();
 	for (int i = 0; i < size; i++)
 	{
-		hulls.push_back(stack.top());
+		results->push_back(stack.top());
 		stack.pop();
 	}
-	std::reverse(hulls.begin(), hulls.end());
-	return hulls;
+	std::reverse(results->begin(), results->end());
 }
 
-std::vector<point> CalculationHelper::SortByAngle(std::vector<point> points)
+std::vector<D2D1_POINT_2F> CalculationHelper::SortByAngle(std::vector<D2D1_POINT_2F> points)
 {
 	CalculationHelper::lowestPoint = getLowestPoint(points);
 	std::sort(points.begin(), points.end(), SortByAngleFunc);
 	return points;
 }
 
-bool CalculationHelper::SortByAngleFunc(point a, point b)
+bool CalculationHelper::SortByAngleFunc(D2D1_POINT_2F a, D2D1_POINT_2F b)
 {
-	point lp = CalculationHelper::lowestPoint;
+	D2D1_POINT_2F lp = CalculationHelper::lowestPoint;
 	if (isPointEqual(a, lp)) { return true; }
 	if (isPointEqual(b, lp)) { return false; }
 
@@ -75,15 +73,15 @@ int CalculationHelper::IsCCW(vector a, vector b)
 	return -1;
 }
 
-vector CalculationHelper::ToVector(point a, point b)
+vector CalculationHelper::ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b)
 {
 	vector v = { b.x - a.x, b.y - a.y };
 	return v;
 }
 
-point CalculationHelper::getLowestPoint(std::vector<point> points)
+D2D1_POINT_2F CalculationHelper::getLowestPoint(std::vector<D2D1_POINT_2F> points)
 {
-	point minPoint = { 0, 100 };
+	D2D1_POINT_2F minPoint = { 0, 100 };
 	for (int i = 0; i < points.size(); i++)
 	{
 		if (points[i].y < minPoint.y)
@@ -95,39 +93,39 @@ point CalculationHelper::getLowestPoint(std::vector<point> points)
 	return minPoint;
 }
 
-bool CalculationHelper::isPointEqual(point a, point b)
+bool CalculationHelper::isPointEqual(D2D1_POINT_2F a, D2D1_POINT_2F b)
 {
 	return (a.x == b.x && a.y == b.y);
 }
 
-bool CalculationHelper::IsPointInsideConvex(std::vector<point> hulls, point t)
+bool CalculationHelper::IsPointInsideConvex(std::vector<D2D1_POINT_2F> points, D2D1_POINT_2F t)
 {
-	point lowestHull = CalculationHelper::getLowestPoint(hulls);
+	D2D1_POINT_2F lowestHull = CalculationHelper::getLowestPoint(points);
 
 	if (t.y < lowestHull.y) return false;
 
-	int lastIndexUnderTarget = CalculationHelper::GetLastIndexUnderTarget(hulls, lowestHull, t);
+	int lastIndexUnderTarget = CalculationHelper::GetLastIndexUnderTarget(points, lowestHull, t);
 
 	// if the target stays behind of the first and last vector of the outter hullls
-	if (lastIndexUnderTarget == 0 || lastIndexUnderTarget == hulls.size() - 1)
+	if (lastIndexUnderTarget == 0 || lastIndexUnderTarget == points.size() - 1)
 	{
 		return false;
 	}
 
-	vector pToNp = CalculationHelper::ToVector(hulls[lastIndexUnderTarget], hulls[lastIndexUnderTarget + 1]); // vector (point to the next point)
-	vector pToT = CalculationHelper::ToVector(hulls[lastIndexUnderTarget], t); // vector (point to target)
+	vector pToNp = CalculationHelper::ToVector(points[lastIndexUnderTarget], points[lastIndexUnderTarget + 1]); // vector (point to the next point)
+	vector pToT = CalculationHelper::ToVector(points[lastIndexUnderTarget], t); // vector (point to target)
 
 	bool result = (CalculationHelper::IsCCW(pToNp, pToT) != -1);
 
 	return result;
 }
 
-point CalculationHelper::GetLeftMostPoint(std::vector<point> hulls)
+D2D1_POINT_2F CalculationHelper::GetLeftMostPoint(std::vector<D2D1_POINT_2F> hulls)
 {
-	point lmp = { 101, 0 };
+	D2D1_POINT_2F lmp = { 101, 0 };
 	for (int i = 0; i < hulls.size(); i++)
 	{
-		point p = hulls[i];
+		D2D1_POINT_2F p = hulls[i];
 		if (p.x < lmp.x)
 		{
 			lmp = p;
@@ -136,7 +134,7 @@ point CalculationHelper::GetLeftMostPoint(std::vector<point> hulls)
 	return lmp;
 }
 
-int CalculationHelper::GetLastIndexUnderTarget(std::vector<point> hulls, point lowestPoint, point target)
+int CalculationHelper::GetLastIndexUnderTarget(std::vector<D2D1_POINT_2F> hulls, D2D1_POINT_2F lowestPoint, D2D1_POINT_2F target)
 {
 	vector t = CalculationHelper::ToVector(lowestPoint, target);
 	vector v;

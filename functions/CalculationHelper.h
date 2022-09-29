@@ -9,27 +9,27 @@
 class CalculationHelper
 {
 public:
-	static point lowestPoint;
+	static D2D1_POINT_2F lowestPoint;
 
 	CalculationHelper();
 
-	static std::vector<point> GetOutterHulls(std::vector<point> points);
+	static void GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::vector<D2D1_POINT_2F> * results);
 
-	static std::vector<point> SortByAngle(std::vector<point> points);
-	static bool SortByAngleFunc(point a, point b);
+	static std::vector<D2D1_POINT_2F> SortByAngle(std::vector<D2D1_POINT_2F> points);
+	static bool SortByAngleFunc(D2D1_POINT_2F a, D2D1_POINT_2F b);
 
 	// a -> r -> c
 	static int IsCCW(vector a, vector b);
 
-	static vector ToVector(point a, point b);
+	static vector ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b);
 
-	static point getLowestPoint(std::vector<point> points);
+	static D2D1_POINT_2F getLowestPoint(std::vector<D2D1_POINT_2F> points);
 
-	static bool isPointEqual(point a, point b);
+	static bool isPointEqual(D2D1_POINT_2F a, D2D1_POINT_2F b);
 
-	static bool IsPointInsideConvex(std::vector<point> hulls, point t);
+	static bool IsPointInsideConvex(std::vector<D2D1_POINT_2F> hulls, D2D1_POINT_2F t);
 
-	static point GetLeftMostPoint(std::vector<point> hulls);
+	static D2D1_POINT_2F GetLeftMostPoint(std::vector<D2D1_POINT_2F> hulls);
 
-	static int GetLastIndexUnderTarget(std::vector<point> hulls, point lowestPoint, point target);
+	static int GetLastIndexUnderTarget(std::vector<D2D1_POINT_2F> hulls, D2D1_POINT_2F lowestPoint, D2D1_POINT_2F target);
 };

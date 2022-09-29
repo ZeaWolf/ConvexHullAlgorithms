@@ -31,3 +31,9 @@ struct pixel
 	float x;
 	float y;
 };
+
+struct D2D1_POINT_2F
+{
+	float x;
+	float y;
+};

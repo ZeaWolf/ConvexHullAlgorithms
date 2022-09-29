@@ -6,25 +6,11 @@ class Minkowski : Preset
 {
 
 public:
-	std::vector<point> pointsA;
-	std::vector<point> hullsA;
-	std::vector<point> pointsB;
-	std::vector<point> hullsB;
-
-	std::vector<point> sumPoints;
-	std::vector<point> diffPoints;
-
-	bool isOverlap;
-
-	Minkowski()
-	{
-		Reset();
-	}
-	~Minkowski()
-	{
-	}
-
-	void Reset();
+	Minkowski(){}
+	~Minkowski(){}
 
 	void Calculate();
+	void CalculateSum(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results);
+	void CalculateDiff(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results);
+	bool CalculateGLK(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results);
 };

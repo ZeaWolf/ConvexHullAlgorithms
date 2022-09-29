@@ -1,55 +1,32 @@
 #include "Minkowski.h"
 
-void Minkowski::Reset()
+
+void Minkowski::CalculateSum(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results)
 {
-	Minkowski::pointsA = {};
-	Minkowski::hullsA = {};
-
-	Minkowski::pointsB = {};
-	Minkowski::hullsB = {};
-	Minkowski::sumPoints = {};
-	Minkowski::diffPoints = {};
-	
-	Minkowski::isOverlap = false;
-
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < arr1.size(); i++)
 	{
-		int x = (rand() % Minkowski::MAXWIDTH);
-		int y = (rand() % Minkowski::MAXHEIGHT);
-		point p = { x, y };
-		Minkowski::pointsA.push_back(p);
-	}
-
-	for (int i = 0; i < 5; i++)
-	{
-		int x = (rand() % Minkowski::MAXWIDTH) + 30;
-		int y = (rand() % Minkowski::MAXHEIGHT) + 30;
-		point p = { x, y};
-		Minkowski::pointsB.push_back(p);
-	}
-
-	Minkowski::hullsA = CalculationHelper::GetOutterHulls(pointsA);
-	Minkowski::hullsB = CalculationHelper::GetOutterHulls(pointsB);
-	Minkowski::Calculate();
-}
-
-void Minkowski::Calculate()
-{
-	Minkowski::isOverlap = false;
-	for (int i = 0; i < Minkowski::pointsA.size(); i++)
-	{
-		for (int j = 0; j < Minkowski::pointsA.size(); j++)
+		for (int j = 0; j < arr2.size(); j++)
 		{
-			point np1 = { Minkowski::pointsA[i].x + Minkowski::pointsB[j].x, Minkowski::pointsA[i].y + Minkowski::pointsB[j].y };
-			point np2 = { Minkowski::pointsA[i].x - Minkowski::pointsB[j].x, Minkowski::pointsA[i].y - Minkowski::pointsB[j].y };
-			Minkowski::sumPoints.push_back(np1);
-			Minkowski::diffPoints.push_back(np2);
+			D2D1_POINT_2F np1 = { arr1[i].x + arr2[j].x, arr1[i].y +arr2[j].y };
+			results->push_back(np1);
 		}
 	}
+}
 
-	Minkowski::sumPoints = CalculationHelper::GetOutterHulls(Minkowski::sumPoints);
-	Minkowski::diffPoints = CalculationHelper::GetOutterHulls(Minkowski::diffPoints);
+void Minkowski::CalculateDiff(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results)
+{
+	for (int i = 0; i < arr1.size(); i++)
+	{
+		for (int j = 0; j < arr2.size(); j++)
+		{
+			D2D1_POINT_2F np1 = { arr1[i].x - arr2[j].x, arr1[i].y - arr2[j].y };
+			results->push_back(np1);
+		}
+	}
+}
 
-
-	Minkowski::isOverlap = CalculationHelper::IsPointInsideConvex(diffPoints, { 0,0 });
+bool Minkowski::CalculateGJK(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F> * results)
+{
+	CalculateDiff(arr1, arr2, results);
+	return CalculationHelper::IsPointInsideConvex(*results, {0, 0});
 }
