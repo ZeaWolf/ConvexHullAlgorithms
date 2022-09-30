@@ -22,7 +22,7 @@ void Func::DoMinkowskiSum(std::vector<D2D1_POINT_2F>* arr1, std::vector<D2D1_POI
 void Func::DoMinkowskiDiff(std::vector<D2D1_POINT_2F>* arr1, std::vector<D2D1_POINT_2F>* arr2, std::vector<D2D1_POINT_2F>* results)
 {
     Minkowski* mk = new Minkowski();
-    return mk->CalculateSum(*arr1, *arr2, results);
+    return mk->CalculateDiff(*arr1, *arr2, results);
 }
 
 bool Func::GJK(std::vector<D2D1_POINT_2F>* arr1, std::vector<D2D1_POINT_2F>* arr2, std::vector<D2D1_POINT_2F>* results)
