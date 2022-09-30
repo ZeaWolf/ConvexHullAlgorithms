@@ -168,6 +168,7 @@ class MainWindow : public BaseWindow<MainWindow>
 
     std::vector<D2D1_POINT_2F>           PCtarget;
     std::vector<D2D1_POINT_2F>           PCraw;
+    std::vector<D2D1_POINT_2F>           PCconvex;
 
     std::vector<D2D1_POINT_2F>           GJKraw1;
     std::vector<D2D1_POINT_2F>           GJKraw2;
@@ -228,7 +229,7 @@ class MainWindow : public BaseWindow<MainWindow>
     //void    OnKeyDown(UINT vkey);
 
     //C
-    void    DrawPoint(int code);
+    void    DrawPoint(int code, D2D1_COLOR_F color);
     void    DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB);
     void    DrawPolygon(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB, std::vector<D2D1_POINT_2F>* vec, D2D1_COLOR_F color);
     void    CreateLayout();
@@ -242,6 +243,7 @@ class MainWindow : public BaseWindow<MainWindow>
     void    UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, float newx, float newy);
 
     void    ShowQuickhull();
+    void    ShowPointConvexHull();
 
 
 

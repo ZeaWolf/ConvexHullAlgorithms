@@ -53,23 +53,35 @@ void SortPoints(std::vector<D2D1_POINT_2F>* vec) {
 	return;
 }
 
-void MainWindow::DrawPoint(int code) {
+void MainWindow::DrawPoint(int code, D2D1_COLOR_F color) {
 	if (code == 1)
 	{
 		for (auto i = ellipses1.begin(); i != ellipses1.end(); ++i)
+		{
+			(*i)->color = color;
 			(*i)->Draw(pRenderTargetM, pBrushM);
+		}
 	}
 	else if (code == 2)
 	{
 		for (auto j = ellipses2.begin(); j != ellipses2.end(); ++j)
+		{
+			(*j)->color = color;
 			(*j)->Draw(pRenderTargetM, pBrushM);
+		}
 	}
 	else if (code == 3)
 	{
 		for (auto i = ellipses1.begin(); i != ellipses1.end(); ++i)
+		{
+			(*i)->color = color;
 			(*i)->Draw(pRenderTargetM, pBrushM);
+		}
 		for (auto j = ellipses2.begin(); j != ellipses2.end(); ++j)
+		{
+			(*j)->color = color;
 			(*j)->Draw(pRenderTargetM, pBrushM);
+		}
 	}
 
 	return;
@@ -118,15 +130,37 @@ void MainWindow::UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, 
 
 void MainWindow::ShowQuickhull() {
 	DrawGraph(pRenderTargetM, pBrushM);
-
 	Func::DoQuickhull(&Qraw, &Qresult);
-
-
 	DrawPolygon(pRenderTargetM, pBrushM, &Qresult, D2D1::ColorF(D2D1::ColorF::Maroon));
+	Qresult.clear();
 
 	// cirle
-	DrawPoint(1);
+	DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Blue));
 
+	if (Selection1())
+	{
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
+		pRenderTargetM->DrawEllipse(Selection1()->ellipse, pBrushM, 2.0f);
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
+		pRenderTargetM->FillEllipse(Selection1()->ellipse, pBrushM);
+	}
+
+	if (Selection2())
+	{
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
+		pRenderTargetM->DrawEllipse(Selection2()->ellipse, pBrushM, 2.0f);
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
+		pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
+	}
+}
+
+
+void MainWindow::ShowPointConvexHull() {
+	DrawPolygon(pRenderTargetM, pBrushM, &PCconvex, D2D1::ColorF(D2D1::ColorF::Maroon));
+	if (Func::DoPointConvex(PCtarget[0], &PCconvex))
+		DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Green));
+	else
+		DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Red));
 	if (Selection1())
 	{
 		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));

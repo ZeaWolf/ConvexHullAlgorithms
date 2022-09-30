@@ -103,6 +103,7 @@ void MainWindow::OnPaintM()
             ShowQuickhull();
             break;
         case PointConvexHullMode:
+            ShowPointConvexHull();
             break;
         case GJKMode:
             break;
@@ -376,7 +377,9 @@ void MainWindow::SetMode(Mode m)
         GenerateInitialPoints(&PCtarget, 1);
         GenerateInitialPoints(&PCraw, PCSIZE);
         SortPoints(&PCraw);
-        InsertPoints(&PCtarget, &PCraw);
+        Func::DoQuickhull(&PCraw, &PCconvex);
+        SortPoints(&PCconvex);
+        InsertPoints(&PCtarget, NULL);
         break;
 
     case GJKMode:
