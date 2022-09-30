@@ -553,6 +553,11 @@ void MainWindow::SetMode(Mode m)
     case GJKMode:
         ellipses1.clear();
         ellipses2.clear();
+        GJKraw1.clear();
+        GJKraw2.clear();
+        GJKconvex1.clear();
+        GJKconvex2.clear();
+        GJKresult.clear();
         GenerateInitialPoints(&GJKraw1, GJKSIZE);
         GenerateInitialPoints(&GJKraw2, GJKSIZE);
         SortPoints(&GJKraw1);
