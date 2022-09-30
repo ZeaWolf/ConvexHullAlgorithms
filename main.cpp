@@ -283,6 +283,7 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
 
     else if ((flags & MK_LBUTTON) && (SelectPoly != NULL)) {
         UpdatePoly(D2D1::Point2F(dipX, dipY));
+        InvalidateRect(m_hwnd, NULL, FALSE);
     }
 
     if (mode == PointConvexHullMode)
