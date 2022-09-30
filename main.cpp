@@ -416,7 +416,7 @@ void MainWindow::SetMode(Mode m)
         MSconvex2.clear();
         MSresult.clear();
         GenerateInitialPoints(&MSraw1, MSSIZE);
-        GenerateInitialPoints(&MSraw1, MSSIZE);
+        GenerateInitialPoints(&MSraw2, MSSIZE);
         SortPoints(&MSraw1);
         SortPoints(&MSraw2);
         InsertPoints(&MSraw1, &MSraw2);
