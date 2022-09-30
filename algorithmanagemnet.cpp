@@ -53,12 +53,12 @@ void SortPoints(std::vector<D2D1_POINT_2F>* vec) {
 	return;
 }
 
-void MainWindow::DrawPoint(int code, D2D1_COLOR_F color) {
+void MainWindow::DrawPoint(int code) {
 	if (code == 1)
 	{
 		for (auto i = ellipses1.begin(); i != ellipses1.end(); ++i)
 		{
-			(*i)->color = color;
+			//(*i)->color = color;
 			(*i)->Draw(pRenderTargetM, pBrushM);
 		}
 	}
@@ -66,7 +66,7 @@ void MainWindow::DrawPoint(int code, D2D1_COLOR_F color) {
 	{
 		for (auto j = ellipses2.begin(); j != ellipses2.end(); ++j)
 		{
-			(*j)->color = color;
+			//(*j)->color = color;
 			(*j)->Draw(pRenderTargetM, pBrushM);
 		}
 	}
@@ -74,12 +74,12 @@ void MainWindow::DrawPoint(int code, D2D1_COLOR_F color) {
 	{
 		for (auto i = ellipses1.begin(); i != ellipses1.end(); ++i)
 		{
-			(*i)->color = color;
+			//(*i)->color = color;
 			(*i)->Draw(pRenderTargetM, pBrushM);
 		}
 		for (auto j = ellipses2.begin(); j != ellipses2.end(); ++j)
 		{
-			(*j)->color = color;
+			//(*j)->color = color;
 			(*j)->Draw(pRenderTargetM, pBrushM);
 		}
 	}
@@ -135,7 +135,7 @@ void MainWindow::ShowQuickhull() {
 	Qresult.clear();
 
 	// cirle
-	DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Blue));
+	DrawPoint(1);
 
 	if (Selection1())
 	{
@@ -157,23 +157,6 @@ void MainWindow::ShowQuickhull() {
 
 void MainWindow::ShowPointConvexHull() {
 	DrawPolygon(pRenderTargetM, pBrushM, &PCconvex, D2D1::ColorF(D2D1::ColorF::Maroon));
-	if (Func::DoPointConvex(PCtarget[0], &PCconvex))
-		DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Green));
-	else
-		DrawPoint(1, D2D1::ColorF(D2D1::ColorF::Red));
-	if (Selection1())
-	{
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-		pRenderTargetM->DrawEllipse(Selection1()->ellipse, pBrushM, 2.0f);
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-		pRenderTargetM->FillEllipse(Selection1()->ellipse, pBrushM);
-	}
-
-	if (Selection2())
-	{
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-		pRenderTargetM->DrawEllipse(Selection2()->ellipse, pBrushM, 2.0f);
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-		pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
-	}
+	DrawPoint(1);
+	
 }

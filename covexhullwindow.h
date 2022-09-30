@@ -229,7 +229,7 @@ class MainWindow : public BaseWindow<MainWindow>
     //void    OnKeyDown(UINT vkey);
 
     //C
-    void    DrawPoint(int code, D2D1_COLOR_F color);
+    void    DrawPoint(int code);
     void    DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB);
     void    DrawPolygon(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB, std::vector<D2D1_POINT_2F>* vec, D2D1_COLOR_F color);
     void    CreateLayout();
