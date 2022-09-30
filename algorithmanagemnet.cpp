@@ -174,10 +174,13 @@ void MainWindow::ShowPointConvexHull() {
 }
 
 void MainWindow::ShowMinkowskiSum() {
+	std::vector<D2D1_POINT_2F>	temp;
 	DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&MSraw1, &MSconvex1);
 	Func::DoQuickhull(&MSraw2, &MSconvex2);
-	Func::DoMinkowskiSum(&MSraw1, &MSraw2, &MSresult);
+	Func::DoMinkowskiSum(&MSraw1, &MSraw2, &temp);
+	Func::DoQuickhull(&temp, &MSresult);
+
 	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
 
 	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::Maroon));

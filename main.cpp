@@ -270,6 +270,13 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         UpdatePoint(p1, Selection1()->xpos, Selection1()->ypos, ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y));
         Selection1()->xpos = ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x);
         Selection1()->ypos = ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y);
+        if (mode == PointConvexHullMode)
+        {
+            if (Func::DoPointConvex(PCtarget[0], &PCconvex))
+                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
+            else
+                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
+        }
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
 
@@ -284,14 +291,6 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
     else if ((flags & MK_LBUTTON) && (SelectPoly != NULL)) {
         UpdatePoly(D2D1::Point2F(dipX, dipY));
         InvalidateRect(m_hwnd, NULL, FALSE);
-    }
-
-    if (mode == PointConvexHullMode)
-    {
-        if (Func::DoPointConvex(PCtarget[0], &PCconvex))
-            Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
-        else
-            Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
     }
 }
 
@@ -442,7 +441,7 @@ void MainWindow::SetMode(Mode m)
         GenerateInitialPoints(&PCraw, PCSIZE);
         SortPoints(&PCraw);
         Func::DoQuickhull(&PCraw, &PCconvex);
-        SortPoints(&PCconvex);
+        //SortPoints(&PCconvex);
         InsertPoints(&PCtarget, &PCconvex); /////
         break;
 
