@@ -20,7 +20,7 @@ void CalculationHelper::GetOutterHulls(std::vector<D2D1_POINT_2F> points, std::v
 		D2D1_POINT_2F next = points[i];
 		D2D1_POINT_2F p = stack.top();
 		stack.pop();
-		while (!stack.empty() && IsCCW(ToVector(stack.top(), p), ToVector(p, next)) == -1)
+		while (!stack.empty() && IsCCW(ToVector(stack.top(), p), ToVector(p, next)) != 1)
 		{
 			p = stack.top();
 			stack.pop();
