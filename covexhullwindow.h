@@ -5,9 +5,11 @@
 #define ID_GJK_BUTTON		384
 #define ID_GRAPH			385
 
-#define GRID_NUM            60
-#define LOWRAND             -13
-#define UPPRAND             13
+#define IN_LIMIT            1
+#define OUT_LIMIT           100
+//#define GRID_NUM            60
+#define LOWRAND             -8
+#define UPPRAND             8
 
 #define MDSIZE              6
 #define MSSIZE              6
@@ -147,6 +149,12 @@ class MainWindow : public BaseWindow<MainWindow>
 
     Mode                    mode;
 
+    int                     GridNum;
+
+    bool                    ScreenMove;
+
+    float                    xoffset;
+    float                    yoffset;
 
     //HWND                    gwnd = NULL;
     HWND                    hb1 = NULL;
@@ -176,6 +184,8 @@ class MainWindow : public BaseWindow<MainWindow>
 
     std::vector<D2D1_POINT_2F>           GJKraw1;
     std::vector<D2D1_POINT_2F>           GJKraw2;
+    std::vector<D2D1_POINT_2F>           GJKconvex1;
+    std::vector<D2D1_POINT_2F>           GJKconvex2;
     std::vector<D2D1_POINT_2F>           GJKresult;
     
     std::vector<D2D1_POINT_2F>*           SelectPoly;
@@ -261,6 +271,11 @@ class MainWindow : public BaseWindow<MainWindow>
 
     void    SelectedPointColor();
 
+    void    ZoomIn();
+    void    ZoomOut();
+
+    void    RefreshPoints();
+
 
 
 public:
@@ -268,7 +283,7 @@ public:
     MainWindow() : pFactory(NULL),
         pRenderTargetM(NULL), pBrushM(NULL), ptMouseM(D2D1::Point2F()),
         pRenderTargetG(NULL), pBrushG(NULL), ptMouseG(D2D1::Point2F()), 
-        SelectPoly(NULL),
+        SelectPoly(NULL), GridNum(40), ScreenMove(false), xoffset(0), yoffset(0),
         selection1(ellipses1.end()), selection2(ellipses2.end())
     {
     }

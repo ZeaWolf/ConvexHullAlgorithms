@@ -72,7 +72,7 @@ void MainWindow::CreateLayout()
         WS_CHILD | WS_VISIBLE, // | BS_OWNERDRAW,					// Window style
         20, 430, 300, 50,                       // Size and position
         m_hwnd,									// Parent window
-        (HMENU)ID_PCH_BUTTON,					// Menu
+        (HMENU)ID_GJK_BUTTON,					// Menu
         GetModuleHandle(NULL),					// Instance handle
         NULL									// Additional application data
     );
@@ -85,7 +85,7 @@ void MainWindow::DrawGraph(ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush* pB)
     float o[4];
     GetGraphInfo(o);
 
-    for (int i = 0; i < GRID_NUM/2; i++)
+    for (int i = 0; i < OUT_LIMIT; i++)
     {
         if (i == 0) {
             pRenderTargetM->DrawLine(

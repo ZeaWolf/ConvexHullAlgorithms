@@ -8,10 +8,10 @@ void MainWindow::GetGraphInfo(float p[]/*, float offsetx, float scale*/) {
     RECT rc1;
     GetClientRect(m_hwnd, &rc1);
 
-    p[0] = (BOUNDARY + ((float)(rc1.right - BOUNDARY) / 2));     // Origin x
-    p[1] = (float)rc1.bottom / 2;                                // Origin y
-    p[2] = (float)(rc1.right - BOUNDARY) / GRID_NUM;            // x scale
-    p[3] = (float) rc1.bottom / GRID_NUM;                         // y scale
+    p[0] = (BOUNDARY + ((float)(rc1.right - BOUNDARY) / 2)) + xoffset;     // Origin x
+    p[1] = (float)(rc1.bottom / 2) + yoffset;                                // Origin y
+    p[2] = (float)(rc1.right - BOUNDARY) / GridNum;            // x scale
+    p[3] = (float) rc1.bottom / GridNum;                         // y scale
 
     return;
 };
@@ -69,6 +69,22 @@ void MainWindow::DiscardGraphicsResourcesM()
     SafeRelease(&pRenderTargetM);
     SafeRelease(&pBrushM);
 
+}
+
+void MainWindow::ZoomIn() {
+    if (GridNum > IN_LIMIT)
+        GridNum -= 1;
+    RefreshPoints();
+    OnPaintM();
+    return;
+}
+
+void MainWindow::ZoomOut() {
+    if (GridNum < OUT_LIMIT)
+        GridNum += 1;
+    RefreshPoints();
+    OnPaintM();
+    return;
 }
 
 void MainWindow::OnPaintM()
@@ -186,12 +202,44 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
         case InitialMode:
             break;
         case MinkowskiDifferenceMode:
-            //p1 = &MDraw1;
-            //p2 = &MDraw2;
+            if (Func::DoPointConvex(pt, &MDconvex1))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&MDraw1, pt);
+            }
+            else if (Func::DoPointConvex(pt, &MDconvex2))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&MDraw2, pt);
+            }
+            else if (dipX > DPIScale::PixelsToDipsX(BOUNDARY))
+            {
+                SetCapture(m_hwnd);
+                ScreenMove = true;
+                ptMouseM.x = ConvertDipToX(dipX);
+                ptMouseM.y = ConvertDipToY(dipY);
+
+            }
             break;
         case MinkowskiSumMode:
-            //p1 = &MSraw1;
-            //p2 = &MSraw2;
+            if (Func::DoPointConvex(pt, &MSconvex1))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&MSraw1, pt);
+            }
+            else if (Func::DoPointConvex(pt, &MSconvex2))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&MSraw2, pt);
+            }
+            else if (dipX > DPIScale::PixelsToDipsX(BOUNDARY))
+            {
+                SetCapture(m_hwnd);
+                ScreenMove = true;
+                ptMouseM.x = ConvertDipToX(dipX);
+                ptMouseM.y = ConvertDipToY(dipY);
+
+            }
             break;
         case QuickhullMode:
             if (Func::DoPointConvex(pt, &Qresult))
@@ -199,14 +247,49 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
                 SetCapture(m_hwnd);
                 SetSelectPoly(&Qraw, pt);
             }
+            else if (dipX > DPIScale::PixelsToDipsX(BOUNDARY))
+            {
+                SetCapture(m_hwnd);
+                ScreenMove = true;
+                ptMouseM.x = ConvertDipToX(dipX);
+                ptMouseM.y = ConvertDipToY(dipY);
+
+            }
             break;
         case PointConvexHullMode:
-            //p1 = &PCtarget;
-            //p2 = &PCconvex;
+            if (Func::DoPointConvex(pt, &PCconvex))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&PCconvex, pt);
+            }
+            else if (dipX > DPIScale::PixelsToDipsX(BOUNDARY))
+            {
+                SetCapture(m_hwnd);
+                ScreenMove = true;
+                ptMouseM.x = ConvertDipToX(dipX);
+                ptMouseM.y = ConvertDipToY(dipY);
+
+            }
             break;
         case GJKMode:
-            //p1 = &GJKraw1;
-            //p2 = &GJKraw2;
+            if (Func::DoPointConvex(pt, &GJKconvex1))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&GJKraw1, pt);
+            }
+            else if (Func::DoPointConvex(pt, &GJKconvex2))
+            {
+                SetCapture(m_hwnd);
+                SetSelectPoly(&GJKraw2, pt);
+            }
+            else if (dipX > DPIScale::PixelsToDipsX(BOUNDARY))
+            {
+                SetCapture(m_hwnd);
+                ScreenMove = true;
+                ptMouseM.x = ConvertDipToX(dipX);
+                ptMouseM.y = ConvertDipToY(dipY);
+
+            }
             break;
         }
     }
@@ -230,6 +313,10 @@ void MainWindow::OnLButtonUp()
         ClearSelection3();
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
+    if (ScreenMove) {
+        ScreenMove = false;
+        InvalidateRect(m_hwnd, NULL, FALSE);
+    }
     ReleaseCapture();
 }
 
@@ -239,7 +326,7 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
     const float dipX = DPIScale::PixelsToDipsX(pixelX);
     const float dipY = DPIScale::PixelsToDipsY(pixelY);
 
-    std::vector<D2D1_POINT_2F>* p1=nullptr, * p2=nullptr;
+    std::vector<D2D1_POINT_2F>* p1 = nullptr, * p2 = nullptr;
     switch (mode)
     {
     case InitialMode:
@@ -288,11 +375,25 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
 
-    else if ((flags & MK_LBUTTON) && (SelectPoly != NULL)) {
+    else if ((flags & MK_LBUTTON) && (SelectPoly != NULL))
+    {
         UpdatePoly(D2D1::Point2F(dipX, dipY));
+
+        RefreshPoints();
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
-}
+    else if ((flags & MK_LBUTTON) && (ScreenMove))
+    {
+        if ( ((ConvertDipToX(dipX) - ptMouseM.x) > 0 && xoffset < 1000) ||
+            ((ConvertDipToX(dipX) - ptMouseM.x) < 0 && xoffset > -1000) )
+            xoffset += (ConvertDipToX(dipX) - ptMouseM.x);
+        if (((ConvertDipToY(dipY) - ptMouseM.y) < 0 && yoffset < 1000) ||
+            ((ConvertDipToY(dipY) - ptMouseM.y) > 0 && yoffset > -1000))
+            yoffset -= (ConvertDipToY(dipY) - ptMouseM.y);
+        RefreshPoints();
+        InvalidateRect(m_hwnd, NULL, FALSE);
+    }
+};
 
 
 void MainWindow::OnKeyDown(UINT vkey)
@@ -383,6 +484,10 @@ BOOL MainWindow::HitTest2(float x, float y)
 void MainWindow::SetMode(Mode m)
 {
     ClearSelection3();
+    ScreenMove = false;
+    xoffset = 0;
+    yoffset = 0;
+
     mode = m;
     //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora
     LPWSTR cursor = IDC_ARROW; //IDC_CROSS, IDC_HAND, IDC_SIZEALL, IDC_HAND, 
@@ -442,7 +547,7 @@ void MainWindow::SetMode(Mode m)
         SortPoints(&PCraw);
         Func::DoQuickhull(&PCraw, &PCconvex);
         //SortPoints(&PCconvex);
-        InsertPoints(&PCtarget, &PCconvex); /////
+        InsertPoints(&PCtarget, NULL); /////
         break;
 
     case GJKMode:
@@ -546,6 +651,14 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
 
+    case WM_MOUSEWHEEL:
+        if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+            ZoomIn();
+        }
+        else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0) {
+            ZoomOut();
+        }
+        break;
     //case WM_CTLCOLORBTN:
     //    OnPaintB();
     //    break;

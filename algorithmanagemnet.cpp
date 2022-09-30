@@ -53,6 +53,46 @@ void SortPoints(std::vector<D2D1_POINT_2F>* vec) {
 	return;
 }
 
+void MainWindow::RefreshPoints() {
+	switch (mode)
+	{
+	case InitialMode:
+		break;
+
+	case MinkowskiDifferenceMode:
+		ellipses1.clear();
+		ellipses2.clear();
+		InsertPoints(&MDraw1, &MDraw2);
+		break;
+
+	case MinkowskiSumMode:
+		ellipses1.clear();
+		ellipses2.clear();
+		InsertPoints(&MSraw1, &MSraw2);
+		break;
+
+	case QuickhullMode:
+		ellipses1.clear();
+		ellipses2.clear();
+		InsertPoints(&Qraw, NULL);
+		break;
+
+	case PointConvexHullMode:
+		ellipses1.clear();
+		ellipses2.clear();
+		//Func::DoQuickhull(&PCraw, &PCconvex);
+		//SortPoints(&PCconvex)
+		InsertPoints(&PCtarget, NULL); /////
+		break;
+
+	case GJKMode:
+		ellipses1.clear();
+		ellipses2.clear();
+		InsertPoints(&GJKraw1, &GJKraw2);
+		break;
+	}
+}
+
 void MainWindow::DrawPoint(int code) {
 	if (code == 1)
 	{
@@ -154,7 +194,7 @@ void MainWindow::UpdatePoly(D2D1_POINT_2F pt)
 void MainWindow::ShowQuickhull() {
 
 	Qresult.clear();
-	DrawGraph(pRenderTargetM, pBrushM);
+	//DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&Qraw, &Qresult);
 	DrawPolygon(pRenderTargetM, pBrushM, &Qresult, D2D1::ColorF(D2D1::ColorF::Maroon));
 
@@ -167,13 +207,16 @@ void MainWindow::ShowQuickhull() {
 
 
 void MainWindow::ShowPointConvexHull() {
-	DrawGraph(pRenderTargetM, pBrushM);
+	//DrawGraph(pRenderTargetM, pBrushM);
 	DrawPolygon(pRenderTargetM, pBrushM, &PCconvex, D2D1::ColorF(D2D1::ColorF::Maroon));
 	DrawPoint(3);
 	
 }
 
 void MainWindow::ShowMinkowskiSum() {
+	MSconvex1.clear();
+	MSconvex2.clear();
+	MSresult.clear();
 	std::vector<D2D1_POINT_2F>	temp;
 	DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&MSraw1, &MSconvex1);
@@ -182,13 +225,8 @@ void MainWindow::ShowMinkowskiSum() {
 	Func::DoQuickhull(&temp, &MSresult);
 
 	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
-
-	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::Maroon));
-
+	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
 	DrawPolygon(pRenderTargetM, pBrushM, &MSresult, D2D1::ColorF(D2D1::ColorF::Purple));
-	MSconvex1.clear();
-	MSconvex2.clear();
-	MSresult.clear();
 
 	// cirle
 	DrawPoint(3);
@@ -198,6 +236,10 @@ void MainWindow::ShowMinkowskiSum() {
 }
 
 void MainWindow::ShowMinkowskiDifference() {
+
+	MDconvex1.clear();
+	MDconvex2.clear();
+	MDresult.clear();
 	std::vector<D2D1_POINT_2F>	temp;
 	DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&MDraw1, &MDconvex1);
@@ -205,13 +247,8 @@ void MainWindow::ShowMinkowskiDifference() {
 	Func::DoMinkowskiDiff(&MDraw1, &MDraw2, &temp);
 	Func::DoQuickhull(&temp, &MDresult);
 	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
-
 	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
-
 	DrawPolygon(pRenderTargetM, pBrushM, &MDresult, D2D1::ColorF(D2D1::ColorF::Purple));
-	MDconvex1.clear();
-	MDconvex2.clear();
-	MDresult.clear();
 
 	// cirle
 	DrawPoint(3);
@@ -221,7 +258,25 @@ void MainWindow::ShowMinkowskiDifference() {
 }
 
 void MainWindow::ShowGJK() {
+	GJKconvex1.clear();
+	GJKconvex2.clear();
+	GJKresult.clear();
+	std::vector<D2D1_POINT_2F>	temp;
+	DrawGraph(pRenderTargetM, pBrushM);
+	Func::DoQuickhull(&GJKraw1, &GJKconvex1);
+	Func::DoQuickhull(&GJKraw2, &GJKconvex2);
 
+	bool col = Func::GJK(&GJKraw1, &GJKraw2, &temp);
+	Func::DoQuickhull(&temp, &GJKresult);
+
+	DrawPolygon(pRenderTargetM, pBrushM, &GJKconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
+	DrawPolygon(pRenderTargetM, pBrushM, &GJKconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
+	DrawPolygon(pRenderTargetM, pBrushM, &GJKresult, col? D2D1::ColorF(D2D1::ColorF::Purple) : D2D1::ColorF(D2D1::ColorF::DarkCyan));
+
+	DrawPoint(3);
+
+	//Select Point color change
+	SelectedPointColor();
 }
 
 
