@@ -198,10 +198,12 @@ void MainWindow::ShowMinkowskiSum() {
 }
 
 void MainWindow::ShowMinkowskiDifference() {
+	std::vector<D2D1_POINT_2F>	temp;
 	DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&MDraw1, &MDconvex1);
 	Func::DoQuickhull(&MDraw2, &MDconvex2);
-	Func::DoMinkowskiDiff(&MDraw1, &MDraw2, &MDresult);
+	Func::DoMinkowskiDiff(&MDraw1, &MDraw2, &temp);
+	Func::DoQuickhull(&temp, &MDresult);
 	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
 
 	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
