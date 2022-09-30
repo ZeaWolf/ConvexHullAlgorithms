@@ -180,13 +180,46 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
         ptMouseM.y -= dipY;
     }
 
-    if (HitTest2(dipX, dipY))
+    else if (HitTest2(dipX, dipY))
     {
         SetCapture(m_hwnd);
         ptMouseM = Selection2()->ellipse.point;
         ptMouseM.x -= dipX;
         ptMouseM.y -= dipY;
     }
+
+    //move polygon
+    else {
+        D2D1_POINT_2F pt = D2D1::Point2F(dipX, dipY);
+        switch (mode)
+        {
+        case InitialMode:
+            break;
+        case MinkowskiDifferenceMode:
+            //p1 = &MDraw1;
+            //p2 = &MDraw2;
+            break;
+        case MinkowskiSumSelectMode:
+            //p1 = &MSraw1;
+            //p2 = &MSraw2;
+            break;
+        case QuickhullMode:
+            if (Func::DoPointConvex(pt, &Qresult))
+            {
+                
+            }
+            break;
+        case PointConvexHullMode:
+            //p1 = &PCtarget;
+            //p2 = &PCconvex;
+            break;
+        case GJKMode:
+            //p1 = &GJKraw1;
+            //p2 = &GJKraw2;
+            break;
+        }
+    }
+
     InvalidateRect(m_hwnd, NULL, FALSE);
 }
 
@@ -229,7 +262,7 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         break;
     case PointConvexHullMode:
         p1 = &PCtarget;
-        p2 = &PCraw;
+        p2 = &PCconvex;
         break;
     case GJKMode:
         p1 = &GJKraw1;
@@ -398,7 +431,7 @@ void MainWindow::SetMode(Mode m)
         SortPoints(&PCraw);
         Func::DoQuickhull(&PCraw, &PCconvex);
         SortPoints(&PCconvex);
-        InsertPoints(&PCtarget, NULL);
+        InsertPoints(&PCtarget, &PCconvex); /////
         break;
 
     case GJKMode:

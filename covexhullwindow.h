@@ -146,7 +146,7 @@ class MainWindow : public BaseWindow<MainWindow>
     D2D1_POINT_2F           ptMouseG;
 
     Mode                    mode;
-    size_t                  nextColor;
+
 
     //HWND                    gwnd = NULL;
     HWND                    hb1 = NULL;
@@ -251,8 +251,8 @@ public:
 
     MainWindow() : pFactory(NULL),
         pRenderTargetM(NULL), pBrushM(NULL), ptMouseM(D2D1::Point2F()),
-        pRenderTargetG(NULL), pBrushG(NULL), ptMouseG(D2D1::Point2F()),
-        nextColor(0), selection1(ellipses1.end()), selection2(ellipses2.end())
+        pRenderTargetG(NULL), pBrushG(NULL), ptMouseG(D2D1::Point2F()), 
+        selection1(ellipses1.end()), selection2(ellipses2.end())
     {
     }
 

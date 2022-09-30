@@ -156,7 +156,8 @@ void MainWindow::ShowQuickhull() {
 
 
 void MainWindow::ShowPointConvexHull() {
+	DrawGraph(pRenderTargetM, pBrushM);
 	DrawPolygon(pRenderTargetM, pBrushM, &PCconvex, D2D1::ColorF(D2D1::ColorF::Maroon));
-	DrawPoint(1);
+	DrawPoint(3);
 	
 }
