@@ -242,6 +242,13 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         UpdatePoint(p1, Selection1()->xpos, Selection1()->ypos, ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y));
         Selection1()->xpos = ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x);
         Selection1()->ypos = ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y);
+        if (mode == PointConvexHullMode)
+        {
+            if (Func::DoPointConvex(PCtarget[0], &PCconvex))
+                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
+            else
+                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
+        }
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
 
@@ -279,6 +286,13 @@ HRESULT MainWindow::InsertPoints(std::vector<D2D1_POINT_2F>* vec1, std::vector<D
             );
             Selection1()->ellipse.radiusX = Selection1()->ellipse.radiusY = 5.0f;
             Selection1()->color = D2D1::ColorF(D2D1::ColorF::Blue);
+            if (mode == PointConvexHullMode)
+            {
+                if (Func::DoPointConvex(PCtarget[0], &PCconvex))
+                    Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
+                else
+                    Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
+            }
             ClearSelection1();
         }
 
@@ -366,6 +380,8 @@ void MainWindow::SetMode(Mode m)
     case QuickhullMode:
         ellipses1.clear();
         ellipses2.clear();
+        Qraw.clear();
+        Qresult.clear();
         GenerateInitialPoints(&Qraw, QSIZE);
         SortPoints(&Qraw);
         InsertPoints(&Qraw, NULL);
@@ -374,6 +390,9 @@ void MainWindow::SetMode(Mode m)
     case PointConvexHullMode:
         ellipses1.clear();
         ellipses2.clear();
+        PCtarget.clear();
+        PCraw.clear();
+        PCconvex.clear();
         GenerateInitialPoints(&PCtarget, 1);
         GenerateInitialPoints(&PCraw, PCSIZE);
         SortPoints(&PCraw);
