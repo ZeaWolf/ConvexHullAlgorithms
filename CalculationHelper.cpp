@@ -81,15 +81,21 @@ cvector CalculationHelper::ToVector(D2D1_POINT_2F a, D2D1_POINT_2F b)
 
 D2D1_POINT_2F CalculationHelper::getLowestPoint(std::vector<D2D1_POINT_2F> points)
 {
-	D2D1_POINT_2F minPoint = { 0, 100 };
+	D2D1_POINT_2F minPoint = points[0];
 	for (int i = 0; i < points.size(); i++)
 	{
 		if (points[i].y < minPoint.y)
 		{
 			minPoint = points[i];
 		}
+		if (points[i].y == minPoint.y)
+		{
+			if (points[i].x < minPoint.x)
+			{
+				minPoint = points[i];
+			}
+		}
 	}
-
 	return minPoint;
 }
 
