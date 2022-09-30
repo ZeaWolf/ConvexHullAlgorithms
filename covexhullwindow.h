@@ -128,7 +128,7 @@ class MainWindow : public BaseWindow<MainWindow>
     {
         InitialMode,
         MinkowskiDifferenceMode,
-        MinkowskiSumSelectMode,
+        MinkowskiSumMode,
         QuickhullMode,
         PointConvexHullMode,
         GJKMode
@@ -157,10 +157,14 @@ class MainWindow : public BaseWindow<MainWindow>
 
     std::vector<D2D1_POINT_2F>           MDraw1;
     std::vector<D2D1_POINT_2F>           MDraw2;
+    std::vector<D2D1_POINT_2F>           MDconvex1;
+    std::vector<D2D1_POINT_2F>           MDconvex2;
     std::vector<D2D1_POINT_2F>           MDresult;
 
     std::vector<D2D1_POINT_2F>           MSraw1;
     std::vector<D2D1_POINT_2F>           MSraw2;
+    std::vector<D2D1_POINT_2F>           MSconvex1;
+    std::vector<D2D1_POINT_2F>           MSconvex2;
     std::vector<D2D1_POINT_2F>           MSresult;
 
     std::vector<D2D1_POINT_2F>           Qraw;
@@ -174,6 +178,12 @@ class MainWindow : public BaseWindow<MainWindow>
     std::vector<D2D1_POINT_2F>           GJKraw2;
     std::vector<D2D1_POINT_2F>           GJKresult;
     
+    std::vector<D2D1_POINT_2F>*           SelectPoly;
+    std::vector<D2D1_POINT_2F>            Displacement;
+    void ClearSelection3();
+    void SetSelectPoly(std::vector<D2D1_POINT_2F>* vec, D2D1_POINT_2F pt);
+
+
 
     list<shared_ptr<MyEllipse>>             ellipses1;
     list<shared_ptr<MyEllipse>>::iterator   selection1;
@@ -241,9 +251,15 @@ class MainWindow : public BaseWindow<MainWindow>
     //C
 
     void    UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, float newx, float newy);
+    void    UpdatePoly(D2D1_POINT_2F pt);
 
     void    ShowQuickhull();
     void    ShowPointConvexHull();
+    void    ShowMinkowskiSum();
+    void    ShowMinkowskiDifference();
+    void    ShowGJK();
+
+    void    SelectedPointColor();
 
 
 
@@ -252,6 +268,7 @@ public:
     MainWindow() : pFactory(NULL),
         pRenderTargetM(NULL), pBrushM(NULL), ptMouseM(D2D1::Point2F()),
         pRenderTargetG(NULL), pBrushG(NULL), ptMouseG(D2D1::Point2F()), 
+        SelectPoly(NULL),
         selection1(ellipses1.end()), selection2(ellipses2.end())
     {
     }

@@ -77,18 +77,8 @@ void MainWindow::OnPaintM()
     if (SUCCEEDED(hr))
     {
         PAINTSTRUCT ps;
-
-        /*UpdateWindow(hb1);
-        UpdateWindow(hb2);
-        UpdateWindow(hb3);
-        UpdateWindow(hb4);
-        UpdateWindow(hb5);*/
-
-
         BeginPaint(m_hwnd, &ps);
-
         pRenderTargetM->BeginDraw();
-
         pRenderTargetM->Clear(D2D1::ColorF(D2D1::ColorF::Gold));
 
         switch (mode)
@@ -96,8 +86,10 @@ void MainWindow::OnPaintM()
         case InitialMode:
             break;
         case MinkowskiDifferenceMode:
+            ShowMinkowskiDifference();
             break;
-        case MinkowskiSumSelectMode:
+        case MinkowskiSumMode:
+            ShowMinkowskiSum();
             break;
         case QuickhullMode:
             ShowQuickhull();
@@ -106,18 +98,14 @@ void MainWindow::OnPaintM()
             ShowPointConvexHull();
             break;
         case GJKMode:
+            ShowGJK();
             break;
         }
 
-
+        // Draw rectangle under Buttons
         RECT rc;
         GetClientRect(m_hwnd, &rc);
-        D2D1_RECT_F rectangle = D2D1::RectF(
-            0.0F,
-            0.0F,
-            BOUNDARY,
-            rc.bottom
-        );
+        D2D1_RECT_F rectangle = D2D1::RectF(0.0F,0.0F,BOUNDARY,rc.bottom);
         pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::White));
         pRenderTargetM->DrawRectangle(&rectangle, pBrushM, 5.0F);
         pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGoldenrod));
@@ -171,6 +159,7 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
 
     ClearSelection1();
     ClearSelection2();
+    ClearSelection3();
 
     if (HitTest1(dipX, dipY))
     {
@@ -190,7 +179,8 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
 
     //move polygon
     else {
-        D2D1_POINT_2F pt = D2D1::Point2F(dipX, dipY);
+        D2D1_POINT_2F pt = D2D1::Point2F(ConvertDipToX(dipX), ConvertDipToY(dipY));
+
         switch (mode)
         {
         case InitialMode:
@@ -199,14 +189,15 @@ void MainWindow::OnLButtonDown(int pixelX, int pixelY, DWORD flags)
             //p1 = &MDraw1;
             //p2 = &MDraw2;
             break;
-        case MinkowskiSumSelectMode:
+        case MinkowskiSumMode:
             //p1 = &MSraw1;
             //p2 = &MSraw2;
             break;
         case QuickhullMode:
             if (Func::DoPointConvex(pt, &Qresult))
             {
-                
+                SetCapture(m_hwnd);
+                SetSelectPoly(&Qraw, pt);
             }
             break;
         case PointConvexHullMode:
@@ -235,6 +226,10 @@ void MainWindow::OnLButtonUp()
         ClearSelection2();
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
+    if (SelectPoly != NULL) {
+        ClearSelection3();
+        InvalidateRect(m_hwnd, NULL, FALSE);
+    }
     ReleaseCapture();
 }
 
@@ -253,7 +248,7 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         p1 = &MDraw1;
         p2 = &MDraw2;
         break;
-    case MinkowskiSumSelectMode:
+    case MinkowskiSumMode:
         p1 = &MSraw1;
         p2 = &MSraw2;
         break;
@@ -275,22 +270,27 @@ void MainWindow::OnMouseMove(int pixelX, int pixelY, DWORD flags)
         UpdatePoint(p1, Selection1()->xpos, Selection1()->ypos, ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y));
         Selection1()->xpos = ConvertDipToX(Selection1()->ellipse.point.x = dipX + ptMouseM.x);
         Selection1()->ypos = ConvertDipToY(Selection1()->ellipse.point.y = dipY + ptMouseM.y);
-        if (mode == PointConvexHullMode)
-        {
-            if (Func::DoPointConvex(PCtarget[0], &PCconvex))
-                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
-            else
-                Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
-        }
         InvalidateRect(m_hwnd, NULL, FALSE);
     }
 
-    if ((flags & MK_LBUTTON) && (Selection2()))
+    else if ((flags & MK_LBUTTON) && (Selection2()))
     {
         UpdatePoint(p2, Selection2()->xpos, Selection2()->ypos, ConvertDipToX(Selection2()->ellipse.point.x = dipX + ptMouseM.x), ConvertDipToY(Selection2()->ellipse.point.y = dipY + ptMouseM.y));
         Selection2()->xpos = ConvertDipToX(Selection2()->ellipse.point.x = dipX + ptMouseM.x);
         Selection2()->ypos = ConvertDipToY(Selection2()->ellipse.point.y = dipY + ptMouseM.y);
         InvalidateRect(m_hwnd, NULL, FALSE);
+    }
+
+    else if ((flags & MK_LBUTTON) && (SelectPoly != NULL)) {
+        UpdatePoly(D2D1::Point2F(dipX, dipY));
+    }
+
+    if (mode == PointConvexHullMode)
+    {
+        if (Func::DoPointConvex(PCtarget[0], &PCconvex))
+            Selection1()->color = D2D1::ColorF(D2D1::ColorF::Green);
+        else
+            Selection1()->color = D2D1::ColorF(D2D1::ColorF::Red);
     }
 }
 
@@ -338,7 +338,7 @@ HRESULT MainWindow::InsertPoints(std::vector<D2D1_POINT_2F>* vec1, std::vector<D
                     ConvertYToDip(Selection2()->ypos = (*vec2)[i].y)
                 );
                 Selection2()->ellipse.radiusX = Selection2()->ellipse.radiusY = 5.0f;
-                Selection2()->color = D2D1::ColorF(D2D1::ColorF::Blue);
+                Selection2()->color = D2D1::ColorF(D2D1::ColorF::Green);
                 ClearSelection2();
             }
         }
@@ -382,6 +382,7 @@ BOOL MainWindow::HitTest2(float x, float y)
 
 void MainWindow::SetMode(Mode m)
 {
+    ClearSelection3();
     mode = m;
     //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora
     LPWSTR cursor = IDC_ARROW; //IDC_CROSS, IDC_HAND, IDC_SIZEALL, IDC_HAND, 
@@ -393,16 +394,26 @@ void MainWindow::SetMode(Mode m)
     case MinkowskiDifferenceMode:
         ellipses1.clear();
         ellipses2.clear();
+        MDraw1.clear();
+        MDraw2.clear();
+        MDconvex1.clear();
+        MDconvex2.clear();
+        MDresult.clear();
         GenerateInitialPoints(&MDraw1, MDSIZE);
         GenerateInitialPoints(&MDraw2, MDSIZE);
         SortPoints(&MDraw1);
         SortPoints(&MDraw2);
-        InsertPoints(&MDraw1, &MDraw1);
+        InsertPoints(&MDraw1, &MDraw2);
         break;
 
-    case MinkowskiSumSelectMode:
+    case MinkowskiSumMode:
         ellipses1.clear();
         ellipses2.clear();
+        MSraw1.clear();
+        MSraw2.clear();
+        MSconvex1.clear();
+        MSconvex2.clear();
+        MSresult.clear();
         GenerateInitialPoints(&MSraw1, MSSIZE);
         GenerateInitialPoints(&MSraw1, MSSIZE);
         SortPoints(&MSraw1);
@@ -552,7 +563,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
 
         case ID_MS_BUTTON:
-            SetMode(MinkowskiSumSelectMode);
+            SetMode(MinkowskiSumMode);
             break;
 
         case ID_Q_BUTTON:

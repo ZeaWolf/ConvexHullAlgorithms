@@ -128,30 +128,41 @@ void MainWindow::UpdatePoint(std::vector<D2D1_POINT_2F>* vec, float x, float y, 
 	return;
 }
 
+void MainWindow::ClearSelection3() { SelectPoly = NULL; Displacement.clear(); };
+
+void MainWindow::SetSelectPoly(std::vector<D2D1_POINT_2F>* vec, D2D1_POINT_2F pt) {
+	SelectPoly = vec;
+	//float x = ConvertDipToX(pt.x);
+	//float y = ConvertDipToY(pt.y);
+	for(unsigned int i = 0; i < vec->size(); i++)
+	{
+		Displacement.push_back(D2D1::Point2F((*vec)[i].x - pt.x, (*vec)[i].y - pt.y));
+	}
+}
+
+void MainWindow::UpdatePoly(D2D1_POINT_2F pt)
+{
+	float x = ConvertDipToX(pt.x);
+	float y = ConvertDipToY(pt.y);
+	for (unsigned int i = 0; i < SelectPoly->size(); i++) {
+		(*SelectPoly)[i].x = Displacement[i].x + x;
+		(*SelectPoly)[i].y = Displacement[i].y + y;
+	}
+	return;
+}
+
 void MainWindow::ShowQuickhull() {
+
+	Qresult.clear();
 	DrawGraph(pRenderTargetM, pBrushM);
 	Func::DoQuickhull(&Qraw, &Qresult);
 	DrawPolygon(pRenderTargetM, pBrushM, &Qresult, D2D1::ColorF(D2D1::ColorF::Maroon));
-	Qresult.clear();
 
 	// cirle
 	DrawPoint(1);
 
-	if (Selection1())
-	{
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-		pRenderTargetM->DrawEllipse(Selection1()->ellipse, pBrushM, 2.0f);
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-		pRenderTargetM->FillEllipse(Selection1()->ellipse, pBrushM);
-	}
-
-	if (Selection2())
-	{
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
-		pRenderTargetM->DrawEllipse(Selection2()->ellipse, pBrushM, 2.0f);
-		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Green));
-		pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
-	}
+	//Select Point color change
+	SelectedPointColor();
 }
 
 
@@ -161,3 +172,73 @@ void MainWindow::ShowPointConvexHull() {
 	DrawPoint(3);
 	
 }
+
+void MainWindow::ShowMinkowskiSum() {
+	DrawGraph(pRenderTargetM, pBrushM);
+	Func::DoQuickhull(&MSraw1, &MSconvex1);
+	Func::DoQuickhull(&MSraw2, &MSconvex2);
+	Func::DoMinkowskiSum(&MSraw1, &MSraw2, &MSresult);
+	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
+
+	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::Maroon));
+
+	DrawPolygon(pRenderTargetM, pBrushM, &MSresult, D2D1::ColorF(D2D1::ColorF::Purple));
+	MSconvex1.clear();
+	MSconvex2.clear();
+	MSresult.clear();
+
+	// cirle
+	DrawPoint(3);
+
+	//Select Point color change
+	SelectedPointColor();
+}
+
+void MainWindow::ShowMinkowskiDifference() {
+	DrawGraph(pRenderTargetM, pBrushM);
+	Func::DoQuickhull(&MDraw1, &MDconvex1);
+	Func::DoQuickhull(&MDraw2, &MDconvex2);
+	Func::DoMinkowskiDiff(&MDraw1, &MDraw2, &MDresult);
+	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
+
+	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
+
+	DrawPolygon(pRenderTargetM, pBrushM, &MDresult, D2D1::ColorF(D2D1::ColorF::Purple));
+	MDconvex1.clear();
+	MDconvex2.clear();
+	MDresult.clear();
+
+	// cirle
+	DrawPoint(3);
+
+	//Select Point color change
+	SelectedPointColor();
+}
+
+void MainWindow::ShowGJK() {
+
+}
+
+
+
+
+
+void MainWindow::SelectedPointColor() {
+	if (Selection1())
+	{
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+		pRenderTargetM->DrawEllipse(Selection1()->ellipse, pBrushM, 2.0f);
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+		pRenderTargetM->FillEllipse(Selection1()->ellipse, pBrushM);
+	}
+
+	if (Selection2())
+	{
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+		pRenderTargetM->DrawEllipse(Selection2()->ellipse, pBrushM, 2.0f);
+		pBrushM->SetColor(D2D1::ColorF(D2D1::ColorF::White));
+		pRenderTargetM->FillEllipse(Selection2()->ellipse, pBrushM);
+	}
+}
+
+
