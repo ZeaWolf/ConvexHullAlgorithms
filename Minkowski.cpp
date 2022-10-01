@@ -27,6 +27,8 @@ void Minkowski::CalculateDiff(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_
 
 bool Minkowski::CalculateGJK(std::vector<D2D1_POINT_2F> arr1, std::vector<D2D1_POINT_2F> arr2, std::vector<D2D1_POINT_2F>* results)
 {
-	CalculateDiff(arr1, arr2, results);
+	std::vector<D2D1_POINT_2F> tempResult;
+	CalculateDiff(arr1, arr2, &tempResult);
+	CalculationHelper::GetOutterHulls(tempResult, results);
 	return CalculationHelper::IsPointInsideConvex(*results, { 0, 0 });
 }
