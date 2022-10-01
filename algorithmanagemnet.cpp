@@ -224,9 +224,9 @@ void MainWindow::ShowMinkowskiSum() {
 	Func::DoMinkowskiSum(&MSraw1, &MSraw2, &temp);
 	Func::DoQuickhull(&temp, &MSresult);
 
-	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
-	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
 	DrawPolygon(pRenderTargetM, pBrushM, &MSresult, D2D1::ColorF(D2D1::ColorF::Purple));
+	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
+	DrawPolygon(pRenderTargetM, pBrushM, &MSconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
 
 	// cirle
 	DrawPoint(3);
@@ -246,10 +246,9 @@ void MainWindow::ShowMinkowskiDifference() {
 	Func::DoQuickhull(&MDraw2, &MDconvex2);
 	Func::DoMinkowskiDiff(&MDraw1, &MDraw2, &temp);
 	Func::DoQuickhull(&temp, &MDresult);
-	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
-	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
 	DrawPolygon(pRenderTargetM, pBrushM, &MDresult, D2D1::ColorF(D2D1::ColorF::Purple));
-
+	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
+	DrawPolygon(pRenderTargetM, pBrushM, &MDconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
 	// cirle
 	DrawPoint(3);
 
@@ -269,9 +268,10 @@ void MainWindow::ShowGJK() {
 	bool col = Func::GJK(&GJKraw1, &GJKraw2, &temp);
 	Func::DoQuickhull(&temp, &GJKresult);
 
-	DrawPolygon(pRenderTargetM, pBrushM, &GJKconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
+
+	DrawPolygon(pRenderTargetM, pBrushM, &GJKresult, col? D2D1::ColorF(D2D1::ColorF::DarkCyan) : D2D1::ColorF(D2D1::ColorF::Purple));
 	DrawPolygon(pRenderTargetM, pBrushM, &GJKconvex2, D2D1::ColorF(D2D1::ColorF::SteelBlue));
-	DrawPolygon(pRenderTargetM, pBrushM, &GJKresult, col? D2D1::ColorF(D2D1::ColorF::Purple) : D2D1::ColorF(D2D1::ColorF::DarkCyan));
+	DrawPolygon(pRenderTargetM, pBrushM, &GJKconvex1, D2D1::ColorF(D2D1::ColorF::Maroon));
 
 	DrawPoint(3);
 
