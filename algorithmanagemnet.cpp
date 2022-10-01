@@ -6,9 +6,9 @@ int RNG(int a, int b) {
 	return rn;
 };
 
-void GenerateInitialPoints(std::vector<D2D1_POINT_2F>* vec, int size) {
+void GenerateInitialPoints(std::vector<D2D1_POINT_2F>* vec, int size, int lowrand, int upprand) {
 	for (int i = 0; i < size; i++) {
-		vec->push_back( D2D1::Point2F((float)RNG(LOWRAND, UPPRAND), (float)RNG(LOWRAND, UPPRAND)) );
+		vec->push_back( D2D1::Point2F((float)RNG(lowrand, upprand), (float)RNG(lowrand, upprand)) );
 	}
 	return;
 };

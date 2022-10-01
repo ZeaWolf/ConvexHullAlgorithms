@@ -296,7 +296,7 @@ static float randx[] = { 1, 2, 0, 5, 6, -5 };
 static float randy[] = { 2, 5, 8, -2, 0, -5 };
 
 int RNG(int a, int b);
-void GenerateInitialPoints(std::vector<D2D1_POINT_2F>* vec, int size);
+void GenerateInitialPoints(std::vector<D2D1_POINT_2F>* vec, int size, int lowrand, int upprand);
 void SortPoints(std::vector<D2D1_POINT_2F>* vec);
 
 

@@ -504,8 +504,8 @@ void MainWindow::SetMode(Mode m)
         MDconvex1.clear();
         MDconvex2.clear();
         MDresult.clear();
-        GenerateInitialPoints(&MDraw1, MDSIZE);
-        GenerateInitialPoints(&MDraw2, MDSIZE);
+        GenerateInitialPoints(&MDraw1, MDSIZE, 0, 5);
+        GenerateInitialPoints(&MDraw2, MDSIZE, 5, 10);
         SortPoints(&MDraw1);
         SortPoints(&MDraw2);
         InsertPoints(&MDraw1, &MDraw2);
@@ -519,8 +519,8 @@ void MainWindow::SetMode(Mode m)
         MSconvex1.clear();
         MSconvex2.clear();
         MSresult.clear();
-        GenerateInitialPoints(&MSraw1, MSSIZE);
-        GenerateInitialPoints(&MSraw2, MSSIZE);
+        GenerateInitialPoints(&MSraw1, MSSIZE, 0, 5);
+        GenerateInitialPoints(&MSraw2, MSSIZE, 5, 10);
         SortPoints(&MSraw1);
         SortPoints(&MSraw2);
         InsertPoints(&MSraw1, &MSraw2);
@@ -531,7 +531,7 @@ void MainWindow::SetMode(Mode m)
         ellipses2.clear();
         Qraw.clear();
         Qresult.clear();
-        GenerateInitialPoints(&Qraw, QSIZE);
+        GenerateInitialPoints(&Qraw, QSIZE, -8, 8);
         SortPoints(&Qraw);
         InsertPoints(&Qraw, NULL);
         break;
@@ -542,8 +542,8 @@ void MainWindow::SetMode(Mode m)
         PCtarget.clear();
         PCraw.clear();
         PCconvex.clear();
-        GenerateInitialPoints(&PCtarget, 1);
-        GenerateInitialPoints(&PCraw, PCSIZE);
+        GenerateInitialPoints(&PCtarget, 1, -10, 10);
+        GenerateInitialPoints(&PCraw, PCSIZE, -10, 10);
         SortPoints(&PCraw);
         Func::DoQuickhull(&PCraw, &PCconvex);
         //SortPoints(&PCconvex);
@@ -558,8 +558,8 @@ void MainWindow::SetMode(Mode m)
         GJKconvex1.clear();
         GJKconvex2.clear();
         GJKresult.clear();
-        GenerateInitialPoints(&GJKraw1, GJKSIZE);
-        GenerateInitialPoints(&GJKraw2, GJKSIZE);
+        GenerateInitialPoints(&GJKraw1, GJKSIZE, 0, 5);
+        GenerateInitialPoints(&GJKraw2, GJKSIZE, 5, 10);
         SortPoints(&GJKraw1);
         SortPoints(&GJKraw2);
         InsertPoints(&GJKraw1, &GJKraw2);
