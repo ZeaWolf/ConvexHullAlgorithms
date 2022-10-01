@@ -67,7 +67,7 @@ bool CalculationHelper::SortByAngleFunc(D2D1_POINT_2F a, D2D1_POINT_2F b)
 // a -> r -> c
 int CalculationHelper::IsCCW(cvector a, cvector b)
 {
-	int dir = a.x * b.y - a.y * b.x;
+	float dir = a.x * b.y - a.y * b.x;
 	if (dir == 0) return 0;
 	else if (dir > 0) return 1;
 	return -1;
